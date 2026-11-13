@@ -180,6 +180,10 @@ Two habits that double the quality of the answers: **save first** (the AI reads
 from disk, not from your buffer), and **select narrowly** (`@this` on 30 lines
 beats `@buffer` on 900).
 
+The commands attach to the OpenCode session for this directory. If none exists
+yet, open the panel first (`Cmd+I`, `Ctrl+.`, or `Space a g`) — that starts the
+TUI, and the commands reuse it.
+
 If you prefer the tmux layout — editor left, AI right, survives a window close
 — install the `ide` script (`install.sh` does this) and run `ide`.
 

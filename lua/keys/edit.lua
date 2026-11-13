@@ -29,14 +29,14 @@ function M.setup(R)
       local mode = vim.api.nvim_get_mode().mode
       if mode:match("^[vV\22]") then
         -- Visual: move the selection, then keep it selected (gv) and re-indent.
-        feed(up and ":m '<-2<CR>gv=gv" or ":m '>+1<CR>gv=gv")
+        feed(up and "<cmd>silent! m '<-2<CR>gv=gv" or "<cmd>silent! m '>+1<CR>gv=gv")
       elseif mode == "i" then
         -- Insert: <C-o> runs exactly one normal command, then you are typing
         -- again. No leaving insert mode, no lost keystrokes.
-        feed(up and "<C-o>:m .-2<CR>" or "<C-o>:m .+1<CR>")
+        feed(up and "<C-o><cmd>silent! m .-2<CR>" or "<C-o><cmd>silent! m .+1<CR>")
       else
         -- Normal: ":m" is Vim's built-in "cut this line, paste it there".
-        feed(up and ":m .-2<CR>==" or ":m .+1<CR>==")
+        feed(up and "<cmd>silent! m .-2<CR>==" or "<cmd>silent! m .+1<CR>==")
       end
     end
   end
@@ -65,11 +65,11 @@ function M.setup(R)
       if mode:match("^[vV\22]") then
         -- Visual: copy the block, then select the fresh copy. `[ and `] are
         -- the marks Vim sets around the text it just copied.
-        feed(up and ":t '<-1<CR>`[V`]" or ":t '><CR>`[V`]")
+        feed(up and "<cmd>silent! t '<-1<CR>`[V`]" or "<cmd>silent! t '><CR>`[V`]")
       elseif mode == "i" then
-        feed(up and "<C-o>:t .-1<CR>" or "<C-o>:t .<CR>")
+        feed(up and "<C-o><cmd>silent! t .-1<CR>" or "<C-o><cmd>silent! t .<CR>")
       else
-        feed(up and ":t .-1<CR>==" or ":t .<CR>==")
+        feed(up and "<cmd>silent! t .-1<CR>==" or "<cmd>silent! t .<CR>==")
       end
     end
   end
