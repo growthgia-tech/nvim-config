@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# ~/.local/bin/ide
+#
+# The "IDE layout": Neovim on the left (70%), the OpenCode AI chat on the right
+# (30%), inside one tmux session. Close the window and the session keeps
+# running — `ide` again reattaches instead of starting over.
+#
+# Usage:
+#   ide             # open the layout in the current directory
+#   ide ~/Dev/api   # open the layout in a specific project
+#   ide kill        # end the session
+#
+# Why tmux and not just a split: the OpenCode chat keeps its own scrollback and
+# survives Neovim reloads, which is how the AI remembers the conversation while
+# you restart the editor.
+
+set -euo pipefail
+
+SESSION="ide"
+
+if [[ "${1:-}" == "kill" ]]; then
+  tmux kill-session -t "$SESSION" 2>/dev/null && echo "session '$SESSION' ended" || echo "no session '$SESSION'"
+  exit 0
+fi
+
+if ! command -v tmux >/dev/null 2>&1; then
+  echo "tmux is not installed. Run: brew install tmux" >&2
+  exit 1
+fi
+
+DIR="${1:-$PWD}"
+if [[ ! -d "$DIR" ]]; then
+  echo "not a directory: $DIR" >&2
+  exit 1
+fi
+DIR="$(cd "$DIR" && pwd)"
+
+# Already running? Just attach (or switch, if we are inside tmux).
+if tmux has-session -t "$SESSION" 2>/dev/null; then
+  if [[ -n "${TMUX:-}" ]]; then
+    exec tmux switch-client -t "$SESSION"
+  fi
+  exec tmux attach-session -t "$SESSION"
+fi
+
+# Left pane: Neovim. Right pane: the AI. The right pane is created first so it
+# lands on the correct side, then we return focus to the editor.
+tmux new-session -d -s "$SESSION" -c "$DIR" -n main
+tmux split-window -h -l 32% -c "$DIR" -t "$SESSION:main"
+
+if command -v opencode >/dev/null 2>&1; then
+  tmux send-keys -t "$SESSION:main.2" 'opencode' C-m
+else
+  tmux send-keys -t "$SESSION:main.2" 'echo "opencode CLI not installed: brew install opencode"' C-m
+fi
+
+tmux send-keys -t "$SESSION:main.1" 'nvim' C-m
+tmux select-pane -t "$SESSION:main.1"
+
+if [[ -n "${TMUX:-}" ]]; then
+  exec tmux switch-client -t "$SESSION"
+fi
+exec tmux attach-session -t "$SESSION"

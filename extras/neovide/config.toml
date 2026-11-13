@@ -1,0 +1,61 @@
+# ~/.config/neovide/config.toml
+#
+# Neovide reads this file at startup, before Neovim runs. It is the place for
+# window/OS-level settings. Anything about *editing* lives in the Neovim
+# config (lua/config/options.lua) instead.
+#
+# install.sh copies this file into place for you. Re-running it is safe: your
+# existing file is backed up next to it as config.toml.bak.
+
+[font]
+# JetBrainsMono Nerd Font is installed by install.sh. The "Mono" variant keeps
+# icons the same width as letters, so the statusline never shifts.
+normal = ["JetBrainsMono Nerd Font Mono"]
+size = 14
+
+[window]
+# Match the rounded borders used inside Neovim.
+padding_top = 8
+padding_bottom = 8
+padding_left = 8
+padding_right = 8
+# Remember size/position between launches, like a native macOS app.
+remember_window_size = true
+# Real macOS overlay scrollbar on the right edge.
+system_scrollbar = true
+
+[input]
+# Required for Option+Arrow (move line) and Option+Shift+Arrow (duplicate
+# line) to reach Neovim as <M-Up>/<M-S-Down>. "only_left" keeps the right
+# Option key producing characters like é, ñ, ∑.
+macos_option_as_meta = "only_left"
+
+# IMPORTANT: turn OFF native tabs. With native tabs on, Neovide eats
+# Cmd+Shift+[ and Cmd+Shift+], and our buffer switching stops working.
+# Neovim's own tabline is used instead.
+system_native_tabs = false
+
+# Keep the title bar text in sync with the file you are editing.
+titlebar_filename = true
+
+[hotkeys]
+# Neovide reserves Cmd+Q/H/M/N (quit/hide/minimise/new window) and does not
+# forward them to Neovim. Cmd+S, Cmd+P, Cmd+B, Cmd+W, Cmd+Z etc. ARE forwarded,
+# so those live in lua/keys/*.lua. Below we only make sure the macOS-standard
+# ones do something sensible.
+#
+# Format: command = "key, modifiers"  (Cmd = "super")
+quit = "q, super"
+hide = "h, super"
+hide_others = "h, super+alt"
+minimise = "m, super"
+new_window = "n, super"
+
+[rendering]
+# Small, cheap animations. Ask for "neovide_scale_factor" style smoothness
+# without turning the editor into a slideshow.
+cursor_animation_length = 0.08
+cursor_trail_size = 0.6
+# Use the GPU when available, fall back gracefully.
+vsync = true
+idle = true

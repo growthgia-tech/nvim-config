@@ -1,0 +1,18 @@
+# Plugin manager state
+lazy-lock.json
+# (remove the line above if you want reproducible plugin versions committed)
+
+# Generated docs (regenerate with :ConfigDocs)
+KEYBINDINGS.md.bak
+
+# Editor / OS noise
+.DS_Store
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+install.log
+
+# Local overrides — never committed
+lua/local.lua

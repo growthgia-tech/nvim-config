@@ -1,0 +1,49 @@
+# ~/.config/ghostty/config
+#
+# Ghostty is a fast macOS terminal that plays well with Neovim. This file is
+# optional: install.sh copies it into place only if you have Ghostty and no
+# config of your own.
+#
+# IMPORTANT: in a *terminal* (Ghostty, iTerm, Terminal.app) the Cmd key never
+# reaches Neovim — macOS and the terminal emulator consume it first. So the Cmd
+# shortcuts (Cmd+S, Cmd+P, …) only work in Neovide. In Ghostty you use the
+# Ctrl-based fallbacks this config binds for you (Ctrl+S, Ctrl+P, Ctrl+B, …).
+# Everything else — Space, F12, :commands, the pickers, the mouse — is identical.
+
+font-family = JetBrainsMono Nerd Font Mono
+font-size = 14
+
+# Send Option as Alt, so Option+Arrow becomes <M-Up>/<M-Down> and "move line"
+# works exactly like in Neovide. Without this, Option+Arrow types accented
+# characters instead.
+macos-option-as-alt = true
+
+# Match the editor's colour scheme family. Ghostty ships these themes; if one
+# is renamed, Ghostty prints a warning and falls back to the default.
+theme = tokyonight-night
+
+# A little breathing room, like the Neovide padding.
+window-padding-x = 6
+window-padding-y = 6
+window-padding-balance = true
+
+# Keep the cursor visible and easy to find.
+cursor-style = block
+cursor-style-blink = false
+mouse-hide-while-typing = true
+
+# Scrollback big enough for long build output.
+scrollback-limit = 20000
+
+# Copy/paste like a Mac: Cmd+C copies the selection, Cmd+V pastes. These are
+# terminal-level, so they work even while Neovim is in insert mode.
+keybind = super+c=copy_to_clipboard
+keybind = super+v=paste_from_clipboard
+
+# Cmd+plus/minus for the font size, as in every other Mac app.
+keybind = super+equal=increase_font_size:1
+keybind = super+minus=decrease_font_size:1
+keybind = super+zero=reset_font_size
+
+# Don't let a stray Ctrl+Shift chord be swallowed.
+keybind = ctrl+shift+p=unbind
