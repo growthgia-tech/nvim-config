@@ -191,6 +191,9 @@ If you prefer the tmux layout — editor left, AI right, survives a window close
 
 ## Install, in detail
 
+Per-platform walkthroughs — prerequisites, package lists, what gets backed up,
+manual install and troubleshooting: **[docs/INSTALL.md](docs/INSTALL.md)**.
+
 ```sh
 git clone <this-repo> ~/.config/nvim     # or copy the folder there
 cd ~/.config/nvim
@@ -269,6 +272,7 @@ versions; silently changing them breaks builds.
 │   ├── plugins/           one lazy.nvim spec per area
 │   ├── help/              :HelpMe, :HelpTutorial, :Panic
 │   └── local.lua          YOUR overrides — git-ignored, loaded last
+├── docs/INSTALL.md        macOS / Linux / Windows install guide
 ├── docs/TUTORIAL.md       the guided tour for a Vim beginner
 ├── KEYBINDINGS.md         generated from the registry
 ├── extras/                neovide / ghostty / tmux configs + the `ide` script

@@ -386,6 +386,7 @@ Write-Host @"
   Docs
     $NvimDest\README.md
     $NvimDest\KEYBINDINGS.md
+    $NvimDest\docs\INSTALL.md
     $NvimDest\docs\TUTORIAL.md
 
 "@

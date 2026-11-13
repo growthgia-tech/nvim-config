@@ -58,7 +58,7 @@ else
   note "install.sh is not executable (chmod +x install.sh)"
 fi
 
-for file in README.md KEYBINDINGS.md docs/TUTORIAL.md; do
+for file in README.md KEYBINDINGS.md docs/INSTALL.md docs/TUTORIAL.md; do
   if [[ -s "$file" ]]; then
     good "$file present"
   else

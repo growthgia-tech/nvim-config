@@ -756,6 +756,7 @@ cat <<EOF
   ${B}Docs${N}
     ${DIM}$NVIM_DEST/README.md${N}
     ${DIM}$NVIM_DEST/KEYBINDINGS.md${N}
+    ${DIM}$NVIM_DEST/docs/INSTALL.md${N}
     ${DIM}$NVIM_DEST/docs/TUTORIAL.md${N}
 
 EOF
