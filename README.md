@@ -130,8 +130,19 @@ leader keys. `KEYBINDINGS.md` shows exactly what each platform binds.
   a typed path + Tab completion as the fast alternative.
 - The two side panels you expect: the file tree on the left (`Cmd+B`,
   `:Explorer`) with VS Code file operations (`a` new file, `A` new folder,
-  `r` rename, `d` delete) and the git working-tree changes (`Space g c`,
-  `:GitChanges`); the AI chat on the right (`Cmd+I`, `Ctrl+.`, `:AIPanel`).
+  `r` rename, `d` delete) and a clickable toolbar above it (new file, new
+  folder, refresh, collapse); the AI chat on the right (`Cmd+I`, `Cmd+L`,
+  `Ctrl+.`, `:AIPanel`).
+- Source control: `Space g c` for the working-tree changes (neo-tree's
+  git_status view, with stage/unstage), `Space g k` to commit (asks for a
+  message, never pushes), `Space g l` for the history graph, `Space g b` to
+  switch branch. Right-click any file in the explorer for New File, New Folder,
+  Reveal in Finder, Open in Terminal, Copy Path, Rename, Delete.
+- A clickable icon strip in the status bar (home, explorer, search, git,
+  debug, AI), so every panel has a visible button as well as a key.
+- Image previews: opening `.png`, `.jpg`, `.webp`, `.gif` or `.svg` shows the
+  picture in a floating window (chafa on Neovide; real pixels in
+  kitty/wezterm/ghostty). `:Preview` reopens it; `q` closes it.
 - Breadcrumbs above the code (dropbar).
 - Tabs with per-file diagnostics, close buttons and `Cmd+1..9`. Closing the
   last tab returns to the start screen instead of an empty `[No Name]` buffer.

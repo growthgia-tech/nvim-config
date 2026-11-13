@@ -1,6 +1,6 @@
 # Plugin manager state
-lazy-lock.json
-# (remove the line above if you want reproducible plugin versions committed)
+# lazy-lock.json IS committed: it pins every plugin commit, so a fresh clone
+# installs exactly the versions this config was tested with.
 
 # Generated docs (regenerate with :ConfigDocs)
 KEYBINDINGS.md.bak

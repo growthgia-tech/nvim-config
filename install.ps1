@@ -136,6 +136,7 @@ $Packages = [ordered]@{
     'node'     = 'OpenJS.NodeJS.LTS'
     'pnpm'     = 'pnpm.pnpm'
     'lazygit'  = 'JesseDuffield.lazygit'
+    'magick'   = 'ImageMagick.ImageMagick'
 }
 $GuiPackages = [ordered]@{
     'neovide'  = 'Neovide.Neovide'

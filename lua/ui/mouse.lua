@@ -46,7 +46,11 @@ end
 function M.setup()
   vim.api.nvim_create_autocmd("FileType", {
     group = vim.api.nvim_create_augroup("UserMouse", { clear = true }),
-    pattern = { "snacks_picker_list", "trouble", "qf" },
+    -- neo-tree is included here rather than in its own config: the click must
+    -- move the tree cursor to the clicked node BEFORE "open" runs, otherwise
+    -- "open" acts on the previously selected node (the classic "clicking a
+    -- folder does nothing" bug).
+    pattern = { "snacks_picker_list", "trouble", "qf", "neo-tree" },
     callback = function(ev)
       vim.keymap.set("n", "<LeftMouse>", function()
         click_then("<CR>")

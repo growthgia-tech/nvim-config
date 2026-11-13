@@ -63,6 +63,17 @@ function M.git_changes()
   end
 end
 
+---Show/hide the debugger panels (scopes, breakpoints, stack, REPL), the
+---right-hand "Run and Debug" sidebar from VS Code.
+function M.debug_panel()
+  local ok, dapui = pcall(require, "dapui")
+  if ok and type(dapui.toggle) == "function" then
+    dapui.toggle()
+  else
+    U.notify("nvim-dap-ui is not installed yet (run :Lazy)", vim.log.levels.WARN)
+  end
+end
+
 ---Open the explorer at `dir` (used after "Open folder").
 function M.reveal(dir)
   if have_neo_tree() then

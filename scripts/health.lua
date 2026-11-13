@@ -330,9 +330,25 @@ check("the start screen is clickable", function()
 end)
 
 check("folder and panel commands exist", function()
-  for _, name in ipairs({ "OpenFolder", "NewFile", "Explorer", "GitChanges", "AIPanel" }) do
+  for _, name in ipairs({ "OpenFolder", "NewFile", "Explorer", "GitChanges", "AIPanel", "Home" }) do
     assert_true(vim.fn.exists(":" .. name) == 2, ":" .. name .. " is not defined")
   end
+end)
+
+check("source control and explorer UI are wired", function()
+  for _, name in ipairs({ "GitCommit", "GitGraph", "GitBranches", "DebugPanel" }) do
+    assert_true(vim.fn.exists(":" .. name) == 2, ":" .. name .. " is not defined")
+  end
+  assert_true(type(require("ui.source").commit) == "function", "lua/ui/source.lua is missing")
+  assert_true(
+    type(require("ui.neotree_bar").click) == "function",
+    "lua/ui/neotree_bar.lua is missing"
+  )
+  assert_true(
+    type(require("ui.explorer_menu").open) == "function",
+    "lua/ui/explorer_menu.lua is missing"
+  )
+  assert_true(type(require("ui.image").preview) == "function", "lua/ui/image.lua is missing")
 end)
 
 -- ---------------------------------------------------------------------------

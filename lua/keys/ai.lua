@@ -123,6 +123,18 @@ function M.setup(R)
     modes = { "n" },
   })
 
+  -- Antigravity / VS Code use Cmd+L for "Code with Agent". Same slot here:
+  -- it opens the chat panel with the cursor in it.
+  R.map({
+    lhs = "<D-l>",
+    rhs = function()
+      toggle_chat(true)
+    end,
+    desc = "Code with the AI (open the chat panel)",
+    cat = "AI",
+    modes = { "n" },
+  })
+
   -- "Do something with this line / selection". Pre-filled, so you just type
   -- what you want and press Enter.
   R.map({

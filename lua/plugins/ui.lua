@@ -8,7 +8,7 @@
 --   * which-key     -> the menu that appears after you press Space
 --   * dropbar       -> breadcrumb bar inside each window (like VS Code)
 --   * mini.nvim     -> icons, auto-pairs, comments, surround, indent scope
---   * three themes  -> tokyonight (default), catppuccin, vscode
+--   * three themes  -> vscode (default, VS Code Dark), catppuccin, tokyonight
 --
 -- Keymaps for all of these live in lua/keys/ui.lua (one registry only).
 -- This file owns the *plugin specs*: no other file may configure snacks.
@@ -40,6 +40,21 @@ local function close_tab(bufnr)
       end)
     end
   end)
+end
+
+-- Clickable statusline icons: the always-visible version of a VS Code
+-- activity bar. They live to the left of the filetype, and each one toggles a
+-- panel, so nothing is hidden behind a command or a leader menu.
+local function panel_icon(icon, fn)
+  return {
+    function()
+      return icon
+    end,
+    on_click = function()
+      pcall(fn)
+    end,
+    padding = { left = 0, right = 1 },
+  }
 end
 
 -- The status bar shows the mode in WORDS ("INSERT"), not the single letter
@@ -95,7 +110,7 @@ end
 
 -- Restore the saved colourscheme once every plugin is available. VimEnter
 -- fires after lazy.nvim has loaded all eager plugins, so "catppuccin" and
--- "vscode" exist even though tokyonight is painted first.
+-- "vscode" exist even though tokyonight is painted first by the priority spec.
 vim.api.nvim_create_autocmd("VimEnter", {
   once = true,
   callback = function()
@@ -242,6 +257,22 @@ return {
             },
           },
         },
+        -- A help circle after every option name. Hovering the name is just
+        -- navigation now; only the icon opens the explanation (and clicking it
+        -- works too). This is deliberately not a tooltip on the whole row:
+        -- that fired constantly while moving the mouse.
+        formats = {
+          desc = function(item)
+            if item.tooltip then
+              return {
+                { item.desc or "", hl = "desc" },
+                { "  ", hl = "comment" },
+                { "\u{f059}", hl = "key" },
+              }
+            end
+            return { item.desc or "", hl = "desc" }
+          end,
+        },
         sections = {
           { section = "header" },
           { section = "keys", gap = 0, padding = 1 },
@@ -273,7 +304,7 @@ return {
             padding = 1,
             text = {
               {
-                "Click an item or press Enter  ·  hover for details  ·  Cmd+Shift+P for everything",
+                "Click an item or press Enter  ·  click the  help icon for details  ·  Cmd+Shift+P for everything",
                 hl = "footer",
               },
             },
@@ -393,7 +424,28 @@ return {
         lualine_a = { mode_text },
         lualine_b = { "branch", "diff", "diagnostics" },
         lualine_c = { { "filename", path = 1 } },
-        lualine_x = { lsp_status, "filetype" },
+        lualine_x = {
+          panel_icon("\u{f015}", function()
+            require("snacks").dashboard()
+          end),
+          panel_icon("\u{f0db}", function()
+            require("ui.panels").explorer()
+          end),
+          panel_icon("\u{f002}", function()
+            require("snacks").picker.grep()
+          end),
+          panel_icon("\u{f1d3}", function()
+            require("ui.source").changes()
+          end),
+          panel_icon("\u{f188}", function()
+            require("ui.panels").debug_panel()
+          end),
+          panel_icon("\u{f086}", function()
+            require("ui.panels").ai_chat(true)
+          end),
+          lsp_status,
+          "filetype",
+        },
         lualine_y = { "progress" },
         lualine_z = { "location", opencode_status },
       },
@@ -495,8 +547,15 @@ return {
     name = "vscode",
     lazy = false,
     opts = {
+      -- "dark" is VS Code Dark Modern's palette (the one in the screenshots).
       style = "dark",
       transparent = false,
     },
+    config = function(_, opts)
+      require("vscode").setup(opts)
+      -- Paint it immediately: it is the default. theme.load() still restores a
+      -- saved choice on VimEnter, so nothing is lost.
+      pcall(vim.cmd.colorscheme, "vscode")
+    end,
   },
 }

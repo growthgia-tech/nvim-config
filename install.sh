@@ -178,6 +178,7 @@ pkg_name() {
     dnf:fd)            echo "fd-find" ;;
     dnf:node)          echo "nodejs" ;;
     dnf:python)        echo "python3" ;;
+    dnf:imagemagick)   echo "ImageMagick" ;;
     dnf:stylua|dnf:terraform|dnf:tflint|dnf:tree-sitter-cli|dnf:lazygit) echo "" ;;
     dnf:*)             echo "$tool" ;;
     # Arch
@@ -185,6 +186,7 @@ pkg_name() {
     # openSUSE
     zypper:fd)         echo "fd" ;;
     zypper:node)       echo "nodejs" ;;
+    zypper:imagemagick) echo "ImageMagick" ;;
     zypper:*)          echo "$tool" ;;
     *) echo "" ;;
   esac
@@ -250,6 +252,8 @@ TOOLS=(
   terraform     # optional: IaC
   tflint        # optional: Terraform linter
   lazygit       # optional: git UI
+  chafa         # image previews in Neovide (ANSI art)
+  imagemagick   # converts webp/svg/gif for chafa; `magick identify`
 )
 
 MISSING=()

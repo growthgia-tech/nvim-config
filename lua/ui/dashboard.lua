@@ -20,6 +20,28 @@ local M = {}
 local current ---@type table? -- the live Snacks.dashboard instance
 local tip_win, tip_buf ---@type number?, number?
 
+-- The same Nerd Font help-circle that lua/plugins/ui.lua appends to each row.
+local HELP_ICON = "\u{f059}"
+
+---Byte range of the help icon on `line`, or nil when the row has none.
+---@param line string
+---@return integer?, integer?
+local function help_icon_range(line)
+  local start = line:find(HELP_ICON, 1, true)
+  if not start then
+    return nil, nil
+  end
+  return start, start + #HELP_ICON - 1
+end
+
+---True when the mouse column (1-based bytes) points at the help icon.
+---@param line string
+---@param column integer
+local function on_help_icon(line, column)
+  local first, last = help_icon_range(line)
+  return first ~= nil and column >= first - 1 and column <= last + 1
+end
+
 ---The live dashboard instance (exposed for tests and for `:checkhealth`).
 function M.instance()
   return current
@@ -131,7 +153,7 @@ local function show_tooltip(item)
   end
 end
 
----Left click: move to the clicked item and run it.
+---Left click: the help icon opens its explanation, any other cell runs the row.
 local function click()
   local pos = vim.fn.getmousepos()
   local inst = current
@@ -154,7 +176,16 @@ local function click()
   end
 
   local item = item_at(inst, pos.line)
-  if not item or not item.action then
+  if not item then
+    return
+  end
+
+  local line = vim.api.nvim_buf_get_lines(inst.buf, pos.line - 1, pos.line, false)[1] or ""
+  if item.tooltip and on_help_icon(line, pos.column) then
+    return show_tooltip(item)
+  end
+
+  if not item.action then
     return
   end
 
@@ -166,15 +197,26 @@ local function click()
   end)
 end
 
----Hover: describe the item under the cursor (fires `updatetime` after it stops).
+---Hover: describe the item ONLY when the mouse is on its help icon.
 local function idle()
   local inst = current
   if not inst or not inst.items then
     return M.close_tooltip()
   end
-  local line = vim.api.nvim_win_get_cursor(0)[1]
-  local item = item_at(inst, line)
-  if item and item.action then
+
+  local pos = vim.fn.getmousepos()
+  local win = vim.api.nvim_get_current_win()
+  if not pos or pos.winid ~= win or type(pos.line) ~= "number" or pos.line <= 0 then
+    return M.close_tooltip()
+  end
+
+  local item = item_at(inst, pos.line)
+  if not item or not item.tooltip then
+    return M.close_tooltip()
+  end
+
+  local line = vim.api.nvim_buf_get_lines(inst.buf, pos.line - 1, pos.line, false)[1] or ""
+  if on_help_icon(line, pos.column) then
     show_tooltip(item)
   else
     M.close_tooltip()
@@ -182,15 +224,65 @@ local function idle()
 end
 
 ---Attach the mouse/tooltip layer to one dashboard buffer.
----@param buf number
-local function attach(buf)
+---@param inst table
+local function attach(inst)
+  local buf = inst.buf
   vim.b[buf].user_dashboard = true
+
+  -- snacks' dashboard registers ONE cleanup for both BufDelete and BufWipeout.
+  -- Wiping a dashboard fires both, so the second call deletes an augroup that
+  -- is already gone and raises E367 ("No such group: __Deleted__"), which
+  -- surfaces as E5108 and aborts whatever caused the wipe — typically opening
+  -- a file from the explorer. Keep the delete half only.
+  local ok, cleanup = pcall(vim.api.nvim_get_autocmds, {
+    event = "BufWipeout",
+    buffer = buf,
+  })
+  if ok then
+    for _, au in ipairs(cleanup) do
+      pcall(vim.api.nvim_del_autocmd, au.id)
+    end
+  end
+
+  -- ... and replace it with one that runs exactly once, whichever of the two
+  -- events arrives first.
+  vim.api.nvim_create_autocmd({ "BufDelete", "BufWipeout" }, {
+    buffer = buf,
+    once = true,
+    callback = function()
+      pcall(function()
+        inst:fire("Closed")
+      end)
+      if inst.augroup then
+        pcall(vim.api.nvim_del_augroup_by_id, inst.augroup)
+      end
+    end,
+  })
 
   vim.keymap.set("n", "<LeftMouse>", click, {
     buffer = buf,
     desc = "Open the dashboard item under the mouse",
     nowait = true,
   })
+
+  -- Caps Lock turns "i" into "I", which would otherwise drop into INSERT on a
+  -- read-only buffer (E21: Cannot make changes). Map the uppercase form of
+  -- every one-letter action to the same thing.
+  for _, item in ipairs(inst.items or {}) do
+    local key = item.key
+    if item.action and type(key) == "string" and key:match("^%l$") then
+      vim.keymap.set("n", key:upper(), function()
+        if not inst.buf or not vim.api.nvim_buf_is_valid(inst.buf) then
+          return
+        end
+        inst:action(item.action)
+      end, {
+        buffer = buf,
+        nowait = true,
+        desc = ("Dashboard: %s (Caps Lock)"):format(item.desc or key),
+      })
+    end
+  end
 
   local group = vim.api.nvim_create_augroup("UserDashboard", { clear = true })
   vim.api.nvim_create_autocmd("CursorHold", {
@@ -308,7 +400,13 @@ function M.open_folder(given)
 
   local ok, folder = pcall(require, "ui.folder")
   if ok and type(folder.pick) == "function" then
-    return folder.pick({ on_choose = M.open_dir })
+    -- Start in the shared workspace when it exists: that is where the
+    -- repositories are, so it is one click instead of a navigation.
+    local start = vim.fn.expand("~/Dev")
+    if vim.fn.isdirectory(start) == 0 then
+      start = nil
+    end
+    return folder.pick({ start = start, on_choose = M.open_dir })
   end
 
   ask_folder(nil, M.open_dir)
@@ -373,7 +471,7 @@ function M.setup()
     local self = open(opts)
     if self and self.buf and vim.api.nvim_buf_is_valid(self.buf) then
       current = self
-      attach(self.buf)
+      attach(self)
     end
     return self
   end

@@ -14,7 +14,7 @@ local M = {}
 -- Themes that :Theme offers. All three are installed by lua/plugins/ui.lua.
 M.available = { "tokyonight", "catppuccin", "vscode" }
 
-M.default = "tokyonight"
+M.default = "vscode"
 
 local attached = false
 

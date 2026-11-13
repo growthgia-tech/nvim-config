@@ -73,7 +73,11 @@ local function command_palette()
         local name = row.key:gsub("^:", "")
         seen_cmd[name] = true
         table.insert(items, {
-          text = row.key .. "  " .. (row.desc or ""),
+          -- The leading ">" is invisible (stripped in format); it exists so
+          -- that typing ">" in the palette matches commands and not keymaps,
+          -- exactly like VS Code. This survives fuzzy matching where a
+          -- filter-transform would fight the next keystroke.
+          text = ">" .. row.key .. "  " .. (row.desc or ""),
           cmd = name,
           desc = row.desc,
           cat = row.cat,
@@ -97,7 +101,7 @@ local function command_palette()
   for name, def in pairs(vim.api.nvim_get_commands({})) do
     if not seen_cmd[name] then
       table.insert(items, {
-        text = ":" .. name .. "  " .. (def.definition or ""),
+        text = ">" .. ":" .. name .. "  " .. (def.definition or ""),
         cmd = name,
         desc = def.definition or name,
         cat = "Commands",
@@ -123,9 +127,11 @@ local function command_palette()
     format = function(item)
       local mode = item.modes and item.modes ~= "" and ("[" .. item.modes .. "] ") or ""
       local label = item.kind == "command" and " › " or (mode .. "› ")
+      -- Strip the invisible ">" prefix that gives commands their own search
+      -- space (see where the items are built).
       return {
         { label, "SnacksPickerComment" },
-        { item.text or "", "SnacksPickerFile" },
+        { (item.text or ""):gsub("^>", ""), "SnacksPickerFile" },
       }
     end,
 
@@ -581,10 +587,73 @@ function M.setup(R)
   R.map({
     lhs = "<leader>gc",
     rhs = function()
-      require("ui.panels").git_changes()
+      require("ui.source").changes()
     end,
     desc = "Toggle the git changes panel",
     cat = "Git",
+  })
+
+  R.map({
+    lhs = "<leader>gk",
+    rhs = function()
+      require("ui.source").commit()
+    end,
+    desc = "Commit changes (asks for a message, never pushes)",
+    cat = "Git",
+  })
+
+  R.map({
+    lhs = "<leader>gl",
+    rhs = function()
+      require("ui.source").graph()
+    end,
+    desc = "Git history graph",
+    cat = "Git",
+  })
+
+  R.map({
+    lhs = "<leader>gb",
+    rhs = function()
+      require("ui.source").branches()
+    end,
+    desc = "Switch branch",
+    cat = "Git",
+  })
+
+  R.map({
+    lhs = "<leader>H",
+    rhs = function()
+      local ok, S = pcall(require, "snacks")
+      if ok and S.dashboard then
+        S.dashboard()
+      else
+        vim.notify("snacks.nvim is not ready yet (try :Lazy)", vim.log.levels.WARN)
+      end
+    end,
+    desc = "Home screen (start screen)",
+    cat = "Windows",
+  })
+
+  -- VS Code: double-clicking the empty part of the tab bar opens a new file.
+  -- The mapping is global because the tabline is not a buffer; anywhere else we
+  -- replay the normal double-click (word selection, picker confirm, ...).
+  R.map({
+    lhs = "<2-LeftMouse>",
+    rhs = function()
+      local pos = vim.fn.getmousepos()
+      if pos.winid == 0 and pos.screenrow <= 1 then
+        vim.cmd("enew")
+        return
+      end
+      vim.api.nvim_feedkeys(
+        vim.api.nvim_replace_termcodes("<2-LeftMouse>", true, false, true),
+        "n",
+        false
+      )
+    end,
+    desc = "New file (double-click the empty tab bar)",
+    cat = "Mouse",
+    modes = { "n" },
   })
 
   R.map({
@@ -726,8 +795,24 @@ function M.setup(R)
   })
 
   R.cmd("GitChanges", function()
-    require("ui.panels").git_changes()
+    require("ui.source").changes()
   end, { desc = "Show or hide the git changes panel", cat = "Git" })
+
+  R.cmd("GitCommit", function()
+    require("ui.source").commit()
+  end, { desc = "Commit changes (asks for a message, never pushes)", cat = "Git" })
+
+  R.cmd("GitGraph", function()
+    require("ui.source").graph()
+  end, { desc = "Git history graph", cat = "Git" })
+
+  R.cmd("GitBranches", function()
+    require("ui.source").branches()
+  end, { desc = "Switch branch", cat = "Git" })
+
+  R.cmd("DebugPanel", function()
+    require("ui.panels").debug_panel()
+  end, { desc = "Show or hide the debugger panels", cat = "Debug" })
 
   R.cmd("OpenFolder", function(args)
     require("ui.dashboard").open_folder(args.args)

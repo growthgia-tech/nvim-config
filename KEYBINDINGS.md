@@ -86,6 +86,7 @@ is enabled everywhere; right-click opens a context menu.
 | `Cmd+Shift+K` |  | AI actions menu (explain, review, tests…) |
 | `Cmd+I` |  | Open the AI chat |
 | `Cmd+K` |  | Ask AI about this line or selection |
+| `Cmd+L` |  | Code with the AI (open the chat panel) |
 | `Space aa` |  | Ask AI about this |
 | `Space ae` |  | AI: explain this code |
 | `Space af` |  | AI: fix the diagnostics |
@@ -118,6 +119,7 @@ is enabled everywhere; right-click opens a context menu.
 |---|---|---|
 | `Cmd+\` | `Alt+\` | Split the editor vertically |
 | `Cmd+B` | `Ctrl+Shift+B` | Toggle the file explorer |
+| `Space H` |  | Home screen (start screen) |
 | `Space e` |  | Toggle the file explorer |
 | `Space wh` |  | Horizontal split  (resize: <C-w>+ / <C-w>-) |
 | `Space wq` |  | Close this window  (not the file) |
@@ -161,8 +163,11 @@ is enabled everywhere; right-click opens a context menu.
 | Key | Terminal | What it does |
 |---|---|---|
 | `Space fg` |  | Changed files (git status) |
+| `Space gb` |  | Switch branch |
 | `Space gc` |  | Toggle the git changes panel |
 | `Space gg` |  | Open lazygit (git app) |
+| `Space gk` |  | Commit changes (asks for a message, never pushes) |
+| `Space gl` |  | Git history graph |
 | `Space gs` |  | Git status: changed files |
 
 ## Terminal
@@ -194,6 +199,7 @@ is enabled everywhere; right-click opens a context menu.
 
 | Key | Terminal | What it does |
 |---|---|---|
+| `2-LeftMouse` |  | New file (double-click the empty tab bar) |
 | `RightMouse` |  | Context menu (right click) |
 
 ## UI
@@ -316,11 +322,20 @@ Type `:` then the name. Tab completes. They are grouped by purpose.
 |---|---|
 | `:Problems` | Open the problems panel |
 
+### Debug
+
+| Command | What it does |
+|---|---|
+| `:DebugPanel` | Show or hide the debugger panels |
+
 ### Git
 
 | Command | What it does |
 |---|---|
+| `:GitBranches` | Switch branch |
 | `:GitChanges` | Show or hide the git changes panel |
+| `:GitCommit` | Commit changes (asks for a message, never pushes) |
+| `:GitGraph` | Git history graph |
 
 ### Session
 

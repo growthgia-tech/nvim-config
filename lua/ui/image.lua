@@ -87,6 +87,31 @@ local function resolve(path)
   return vim.fn.fnamemodify(path, ":p")
 end
 
+---The install command for this OS, used in every "chafa is missing" message.
+---@return string
+local function install_hint()
+  local sys = (vim.uv.os_uname().sysname or ""):lower()
+  if sys:find("darwin") then
+    return "brew install chafa imagemagick"
+  end
+  if sys:find("windows") then
+    return "winget install ImageMagick.ImageMagick  (and: scoop install chafa)"
+  end
+  if vim.fn.executable("apt") == 1 then
+    return "sudo apt install chafa imagemagick"
+  end
+  if vim.fn.executable("dnf") == 1 then
+    return "sudo dnf install chafa ImageMagick"
+  end
+  if vim.fn.executable("pacman") == 1 then
+    return "sudo pacman -S chafa imagemagick"
+  end
+  if vim.fn.executable("zypper") == 1 then
+    return "sudo zypper install chafa ImageMagick"
+  end
+  return "install chafa + ImageMagick with your package manager"
+end
+
 ---@param path string
 ---@return string
 local function basename(path)
@@ -143,7 +168,7 @@ local function image_dimensions(path)
   elseif vim.fn.executable("identify") == 1 then
     cmd = { "identify", "-format", "%wx%h\n", path }
   else
-    dims_cache[path] = false
+    -- Not cached: ImageMagick may be installed later in the same session.
     return nil
   end
 
@@ -503,7 +528,8 @@ function M.preview(path, opts)
   if not snacks_supported() and not M.has_chafa() then
     -- Keep the exact Homebrew hint: it is what the user has to type.
     vim.notify(
-      ("chafa is not installed — image preview needs it.\nInstall with: brew install chafa\n%s"):format(
+      ("chafa is not installed — image preview needs it.\nInstall with: %s\n%s"):format(
+        install_hint(),
         describe(path)
       ),
       vim.log.levels.WARN,
@@ -519,8 +545,9 @@ function M.preview(path, opts)
     })
   elseif not opened then
     vim.notify(
-      ("Preview failed for %s: no image renderer available (try: brew install chafa)"):format(
-        basename(path)
+      ("Preview failed for %s: no image renderer available (try: %s)"):format(
+        basename(path),
+        install_hint()
       ),
       vim.log.levels.ERROR,
       { title = "ui.image" }
@@ -549,8 +576,8 @@ local function render_message(buf, path)
     lines[#lines + 1] = "  The preview opens in a floating terminal."
     lines[#lines + 1] = "  q or <Esc> closes it  ·  :Preview reopens it"
   else
-    lines[#lines + 1] = "  Preview needs chafa:  brew install chafa"
-    lines[#lines + 1] = "  (ImageMagick gives you dimensions:  brew install imagemagick)"
+    lines[#lines + 1] = "  Preview needs chafa + ImageMagick:"
+    lines[#lines + 1] = "    " .. install_hint()
   end
 
   vim.bo[buf].modifiable = true

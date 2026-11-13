@@ -43,11 +43,21 @@ return {
           -- One-key habits, plus mouse clicks, so it feels like VS Code's tree.
           ["q"] = "close_window", -- quit the sidebar without quitting Neovim
           ["<CR>"] = "open", -- Enter opens the file or folder
-          ["<LeftMouse>"] = "open", -- one click opens, like VS Code's explorer
           ["<2-LeftMouse>"] = "open", -- double click also opens, like a file manager
+          -- Single click is handled by lua/ui/mouse.lua: it moves the tree
+          -- cursor to the clicked node *before* running "open", otherwise a
+          -- click on "backend" toggles whichever folder was selected before.
         },
       },
     },
+    config = function(_, opts)
+      require("neo-tree").setup(opts)
+
+      -- VS Code's explorer toolbar (new file / new folder / refresh / collapse)
+      -- and its right-click menu, in lua/ui/.
+      require("ui.neotree_bar").setup()
+      require("ui.explorer_menu").setup()
+    end,
   },
 
   -- -------------------------------------------------------------------------

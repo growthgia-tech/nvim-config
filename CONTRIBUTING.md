@@ -23,6 +23,15 @@ A commit before an experiment turns "I broke my editor" into
    `KEYBINDINGS.md`.
 5. `make verify` before you call it done.
 
+## Where a new behaviour goes
+
+- **A key or a command** → `lua/keys/*.lua`, declared with `R.map` / `R.cmd`.
+- **A plugin setting** → the matching file in `lua/plugins/`.
+- **Something that needs a plugin loaded and is called from more than one
+  place** (the dashboard, a panel, a preview) → `lua/ui/*.lua`, wired from
+  `lua/plugins/ui.lua`'s `config`. Those modules must never error when the
+  plugin is missing: `pcall(require, ...)` and a readable `vim.notify`.
+
 ## Adding a key
 
 Everything goes through the registry (`lua/config/registry.lua`):
