@@ -175,6 +175,10 @@ return {
     dependencies = { "mason-org/mason.nvim" },
     opts = {
       ensure_installed = {
+        -- Roslyn itself: the community registry ships a current build, and
+        -- roslyn.nvim refuses anything older. Installing it here means C# is a
+        -- one-command setup instead of "go read the roslyn.nvim README".
+        "roslyn",
         "csharpier", -- C# formatter (roslyn.nvim also formats, this is a backup)
         "netcoredbg", -- C# debugger
         "debugpy", -- Python debugger

@@ -192,21 +192,21 @@ function M.setup(R)
   -- All of these run in the project root (nearest .git) and land in the
   -- terminal panel, so you can read output and Ctrl-C them.
   R.cmd("DotnetBuild", function()
-    U.run_task("cd " .. U.root() .. " && dotnet build")
+    U.run_task("dotnet build", { cwd = U.root() })
   end, {
     desc = "Build the .NET solution",
     cat = ".NET",
   })
 
   R.cmd("DotnetRun", function()
-    U.run_task("cd " .. U.root() .. " && dotnet run")
+    U.run_task("dotnet run", { cwd = U.root() })
   end, {
     desc = "Run the .NET project",
     cat = ".NET",
   })
 
   R.cmd("DotnetTest", function()
-    U.run_task("cd " .. U.root() .. " && dotnet test")
+    U.run_task("dotnet test", { cwd = U.root() })
   end, {
     desc = "Run the .NET tests",
     cat = ".NET",
@@ -253,11 +253,11 @@ function M.setup(R)
 
     if sub == "start" then
       local runner = is_expo(root) and "npx expo start" or "npx react-native start"
-      U.run_task("cd " .. root .. " && " .. runner)
+      U.run_task(runner, { cwd = root })
     elseif sub == "ios" then
-      U.run_task("cd " .. root .. " && npx react-native run-ios")
+      U.run_task("npx react-native run-ios", { cwd = root })
     elseif sub == "android" then
-      U.run_task("cd " .. root .. " && npx react-native run-android")
+      U.run_task("npx react-native run-android", { cwd = root })
     else
       U.notify(
         (':RN needs start, ios or android (got "%s"). Try :RN start'):format(sub),

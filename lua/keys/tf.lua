@@ -26,7 +26,7 @@ function M.setup(R)
 
   ---Run one Terraform subcommand in the project root.
   local function run(sub)
-    U.run_task("cd " .. U.root() .. " && terraform " .. sub)
+    U.run_task("terraform " .. sub, { cwd = U.root() })
   end
 
   ---`apply` is the only command that needs a decision, so it gets its own

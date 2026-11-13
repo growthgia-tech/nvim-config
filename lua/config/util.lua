@@ -29,11 +29,17 @@ function M.confirm(msg)
 end
 
 ---Run a shell command in a terminal panel (snacks when available).
+---
+---Pass `cwd` instead of writing `cd <dir> &&` yourself: project paths with a
+---space in them ("~/Dev/My Projects/api") would otherwise split into two
+---arguments and the command would run in the wrong directory.
 function M.run_task(cmd, opts)
   opts = opts or {}
+
   local ok, snacks = pcall(require, "snacks")
   if ok and snacks.terminal then
     snacks.terminal.open(cmd, {
+      cwd = opts.cwd,
       win = {
         position = opts.position or "bottom",
         height = opts.height or 0.3,
@@ -43,8 +49,12 @@ function M.run_task(cmd, opts)
     return
   end
 
+  local prefix = ""
+  if opts.cwd then
+    prefix = "cd " .. vim.fn.shellescape(opts.cwd) .. " && "
+  end
   vim.cmd("botright split")
-  vim.cmd("terminal " .. cmd)
+  vim.cmd("terminal " .. prefix .. cmd)
 end
 
 ---Save the current buffer, asking for a name if it has none.
