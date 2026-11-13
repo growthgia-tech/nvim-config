@@ -494,7 +494,9 @@ NEOVIDE_CFG="${XDG_CONFIG_HOME:-$HOME/.config}/neovide"
 if ((SKIP_GUI == 0)) && { have neovide || [[ -d /Applications/Neovide.app ]]; }; then
   if [[ -f "$NEOVIDE_CFG/config.toml" ]] && ! cmp -s "$SCRIPT_DIR/extras/neovide/config.toml" "$NEOVIDE_CFG/config.toml"; then
     run mkdir -p "$NEOVIDE_CFG"
-    cp "$NEOVIDE_CFG/config.toml" "$NEOVIDE_CFG/config.toml.bak"
+    if ((DRY_RUN == 0)); then
+      cp "$NEOVIDE_CFG/config.toml" "$NEOVIDE_CFG/config.toml.bak"
+    fi
     warn "existing Neovide config backed up to config.toml.bak"
   fi
   run mkdir -p "$NEOVIDE_CFG"
@@ -562,7 +564,9 @@ if [[ -d "/Applications/Ghostty.app" ]] || brew list --cask ghostty >/dev/null 2
   GHOSTTY_CFG="${XDG_CONFIG_HOME:-$HOME/.config}/ghostty"
   run mkdir -p "$GHOSTTY_CFG"
   if [[ -f "$GHOSTTY_CFG/config" ]] && ! cmp -s "$SCRIPT_DIR/extras/ghostty/config.ghostty" "$GHOSTTY_CFG/config"; then
-    cp "$GHOSTTY_CFG/config" "$GHOSTTY_CFG/config.bak"
+    if ((DRY_RUN == 0)); then
+      cp "$GHOSTTY_CFG/config" "$GHOSTTY_CFG/config.bak"
+    fi
     warn "existing Ghostty config backed up to config.bak"
   fi
   if [[ ! -f "$GHOSTTY_CFG/config" ]] || ((ASSUME_YES)); then
@@ -577,7 +581,9 @@ fi
 
 if ((SKIP_TMUX == 0)) && have tmux; then
   if [[ -f "$HOME/.tmux.conf" ]] && ! cmp -s "$SCRIPT_DIR/extras/tmux/tmux.conf" "$HOME/.tmux.conf"; then
-    cp "$HOME/.tmux.conf" "$HOME/.tmux.conf.bak"
+    if ((DRY_RUN == 0)); then
+      cp "$HOME/.tmux.conf" "$HOME/.tmux.conf.bak"
+    fi
     warn "existing ~/.tmux.conf backed up to ~/.tmux.conf.bak"
   fi
   if [[ ! -f "$HOME/.tmux.conf" ]] || ((ASSUME_YES)); then
