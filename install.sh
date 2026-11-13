@@ -378,6 +378,35 @@ else
   fi
 fi
 
+# Node-based language servers and formatters. Installing them through pnpm
+# means ONE copy of each package version in the shared store, hardlinked into
+# the global bin — the same store every project on this machine already uses.
+# Mason then finds them on PATH and skips its own download (see
+# scripts/install-tools.lua), so nothing is installed twice.
+NODE_TOOLS=(
+  @vtsls/language-server        # TypeScript / JavaScript
+  yaml-language-server
+  bash-language-server
+  vscode-langservers-extracted  # html, css, json, eslint servers
+  @olrtg/emmet-language-server
+  @tailwindcss/language-server
+  basedpyright                  # Python types
+  prettier                      # web formatter
+)
+
+if have pnpm || have npm; then
+  if ask "Install the Node-based language servers (pnpm, shared store)?"; then
+    if have pnpm; then
+      run pnpm add -g "${NODE_TOOLS[@]}" || warn "pnpm install had errors; Mason will fill the gaps"
+    else
+      run npm install -g "${NODE_TOOLS[@]}" || warn "npm install had errors; Mason will fill the gaps"
+    fi
+    ok "Node language servers"
+  fi
+else
+  note "no pnpm/npm yet: Mason will install these servers itself after the first launch"
+fi
+
 # .NET is deliberately NOT installed or upgraded: projects pin SDK versions and
 # silently changing the SDK breaks builds. We only report what is there.
 if have dotnet; then
@@ -639,6 +668,16 @@ else
   export GIT_CONFIG_KEY_0="http.version"
   export GIT_CONFIG_VALUE_0="HTTP/1.1"
 
+  # pnpm keeps global binaries in a directory it does not add to PATH unless
+  # `pnpm setup` was run. This script adds it for its own child processes; the
+  # user's shell needs the same line, otherwise `pnpm add -g` refuses to run.
+  PNPM_BIN="$HOME/Library/pnpm/bin"
+  [[ "$OS" == "linux" ]] && PNPM_BIN="$HOME/.local/share/pnpm"
+  if have pnpm && [[ -d "$PNPM_BIN" ]] && [[ ":$PATH:" != *":$PNPM_BIN:"* ]]; then
+    warn "pnpm's global bin directory is not in your shell PATH"
+    note "  echo 'export PATH=\"$PNPM_BIN:\$PATH\"' >> ~/.zshrc   # or ~/.bashrc"
+  fi
+
   note "plugins…"
   # A failed plugin install must not abort the installer: the editor still
   # opens and :Lazy can retry later.
@@ -651,7 +690,8 @@ else
   note "LSP servers, formatters, linters, debug adapters…"
   # install-tools.lua reads the package lists straight out of the plugin specs
   # and waits for every install to finish, which :MasonToolsInstallSync does
-  # not do reliably on a slow connection.
+  # not do reliably on a slow connection. It also skips anything already on
+  # PATH (Homebrew, pnpm), so nothing gets installed twice.
   if nvim --headless -c "lua dofile('$NVIM_DEST/scripts/install-tools.lua')" -c qa >>"$LOG" 2>&1; then
     ok "language tools installed"
   else

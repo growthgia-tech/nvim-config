@@ -236,6 +236,16 @@ make tools      # install or repair language servers, formatters, debuggers
 make update     # update plugins and tools
 ```
 
+**Node tools go through pnpm, not npm.** pnpm keeps one store on the machine
+(`~/Library/pnpm/store`) and hardlinks each package version into the places
+that need it, so a package is stored once no matter how many projects use it.
+The installer pre-installs the Node-based language servers
+(`vtsls`, `yaml-language-server`, `bash-language-server`,
+`vscode-langservers-extracted`, `emmet`, `tailwindcss`, `basedpyright`,
+`prettier`) through `pnpm add -g`; Mason then sees them on `PATH` and skips its
+own copies. `npm` is only a fallback for machines without pnpm, and Neovim puts
+pnpm's global bin directory on `PATH` at startup.
+
 **.NET is never installed or upgraded by the scripts.** Projects pin SDK
 versions; silently changing them breaks builds.
 
