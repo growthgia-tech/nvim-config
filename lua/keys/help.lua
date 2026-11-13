@@ -33,10 +33,7 @@ function M.setup(R)
     if ok then
       mod.open()
     else
-      U.notify(
-        "Esc = normal mode.  u = undo.  :w = save.  :q! = quit.  :Reload = reload.",
-        WARN
-      )
+      U.notify("Esc = normal mode.  u = undo.  :w = save.  :q! = quit.  :Reload = reload.", WARN)
     end
   end
 

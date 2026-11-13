@@ -42,10 +42,7 @@ function M.setup(R)
 
       local ok2, err = pcall(fn)
       if not ok2 then
-        vim.notify(
-          ("%s.%s failed: %s"):format(module, method, tostring(err)),
-          vim.log.levels.WARN
-        )
+        vim.notify(("%s.%s failed: %s"):format(module, method, tostring(err)), vim.log.levels.WARN)
       end
     end
   end
@@ -59,10 +56,7 @@ function M.setup(R)
     end
     local ok2, err = pcall(dap.repl.toggle)
     if not ok2 then
-      vim.notify(
-        "Could not toggle the dap REPL: " .. tostring(err),
-        vim.log.levels.WARN
-      )
+      vim.notify("Could not toggle the dap REPL: " .. tostring(err), vim.log.levels.WARN)
     end
   end
 
@@ -250,8 +244,7 @@ function M.setup(R)
 
     -- Cheap check on purpose: a real JSON parse buys us nothing here.
     local text = table.concat(lines, "\n")
-    return text:find('"expo"', 1, true) ~= nil
-      or vim.fn.isdirectory(root .. "/.expo") == 1
+    return text:find('"expo"', 1, true) ~= nil or vim.fn.isdirectory(root .. "/.expo") == 1
   end
 
   R.cmd("RN", function(args)

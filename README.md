@@ -210,6 +210,7 @@ What it installs, by platform:
 | Search | `ripgrep`, `fd` | `ripgrep`, `fd-find` (linked as `fd`) | `BurntSushi.ripgrep.MSVC`, `sharkdp.fd` |
 | Git | `git`, `lazygit` | `git` | `Git.Git`, `JesseDuffield.lazygit` |
 | Node | `node` | `nodejs`, `npm` | `OpenJS.NodeJS.LTS` |
+| Python (Python debugging) | `python` (3.10+) | `python3` (3.10+) | via `:Mason` |
 | Parsers | `tree-sitter-cli` | via `npm` | via `npm` |
 | Lua/shell tooling | `stylua`, `shfmt`, `shellcheck` | `shfmt`, `shellcheck` (+ `cargo` for stylua) | via Mason |
 | IaC | `terraform`, `tflint` (taps) | manual link if unpackaged | via Mason |
@@ -217,8 +218,19 @@ What it installs, by platform:
 | Font | `font-jetbrains-mono-nerd-font` cask | downloaded to `~/.local/share/fonts` | manual link printed |
 | tmux | installed on request | installed on request | n/a |
 
-Then it runs `:Lazy sync` and `:MasonToolsInstallSync` headlessly, so the first
+Then it runs `:Lazy sync` and `scripts/install-tools.lua` headlessly, so the first
 interactive launch is not a wall of installers.
+
+There is also a `Makefile` for the three things you will actually repeat
+(`make` is not installed on Windows by default; use `install.ps1` there):
+
+```sh
+make            # list the targets
+make verify     # headless self-check: plugins, syntax, keys, LSP, DAP
+make docs       # regenerate KEYBINDINGS.md from the live keymaps
+make tools      # install or repair language servers, formatters, debuggers
+make update     # update plugins and tools
+```
 
 **.NET is never installed or upgraded by the scripts.** Projects pin SDK
 versions; silently changing them breaks builds.
@@ -246,7 +258,7 @@ versions; silently changing them breaks builds.
 ├── docs/TUTORIAL.md       the guided tour for a Vim beginner
 ├── KEYBINDINGS.md         generated from the registry
 ├── extras/                neovide / ghostty / tmux configs + the `ide` script
-├── scripts/               gen-docs.lua, verify.sh
+├── scripts/               gen-docs.lua, install-tools.lua, health.lua, verify.sh
 ├── install.sh             macOS + Linux
 └── install.ps1            Windows
 ```
@@ -282,7 +294,7 @@ and "it works".
 | 1 | `nvim --version` | 0.11+ |
 | 2 | `:Health` | no red errors under lazy/mason/lsp |
 | 3 | `:Lazy` | every plugin installed, none errored |
-| 4 | `:Mason` | language tools installed (allow a few minutes) |
+| 4 | `make tools` (or `:Mason`) | language tools installed (allow a few minutes) |
 | 5 | `:checkhealth opencode` | server reachable, or "not running" (start it with `Cmd+I`) |
 | 6 | `:HelpMe` | a full cheat sheet, grouped by category |
 | 7 | `Cmd+P` / `Ctrl+P` | the file picker opens and finds files |

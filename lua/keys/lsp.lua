@@ -21,6 +21,35 @@ function M.setup(R)
   -- Small helpers. Each one keeps the "no language server here" case calm.
   -- -------------------------------------------------------------------------
 
+  ---Jump to the next/previous diagnostic in this buffer and show it.
+  ---These are the most-pressed keys when something is underlined in red, so
+  ---they are plain bracket motions rather than leader keys.
+  local function diagnostic_jump(forward)
+    return function()
+      local ok = pcall(function()
+        vim.diagnostic.jump({ count = forward and 1 or -1, float = true })
+      end)
+      if not ok then
+        -- Neovim < 0.11 fallback.
+        vim.diagnostic.goto_next({ float = true })
+      end
+    end
+  end
+
+  R.map({
+    lhs = "]d",
+    rhs = diagnostic_jump(true),
+    desc = "Next problem",
+    cat = "Diagnostics",
+  })
+
+  R.map({
+    lhs = "[d",
+    rhs = diagnostic_jump(false),
+    desc = "Previous problem",
+    cat = "Diagnostics",
+  })
+
   ---Jump to where the symbol under the cursor is defined.
   local function definition()
     if not pcall(vim.lsp.buf.definition) then

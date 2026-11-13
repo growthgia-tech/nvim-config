@@ -37,19 +37,18 @@ local function pick(what, opts)
 end
 
 ---Turn a value that may be a string or a list of keys into one readable line.
-local function as_text(value)
-  if type(value) == "table" then
-    return table.concat(value, " ")
-  end
-  return tostring(value or "")
-end
-
 -- ---------------------------------------------------------------------------
 -- Command palette (Cmd+Shift+P)
 --
 -- One search box that lists BOTH Vim commands (":write") and keybindings
--- ("<D-s> Save file"). Picking a command runs it; picking a keybinding presses
+-- ("Cmd+S  Save file"). Picking a command runs it; picking a keybinding presses
 -- the key for you, so you see exactly what it does.
+--
+-- The list is built from the registry plus Neovim's command table, rather than
+-- from snacks' own vim_commands/vim_keymaps sources: those two expect per-source
+-- options that a combined finder does not pass, which made the palette throw.
+-- Building the items ourselves is also what makes the descriptions match
+-- :HelpMe word for word.
 -- ---------------------------------------------------------------------------
 local function command_palette()
   local S = snacks()
@@ -58,48 +57,92 @@ local function command_palette()
     return
   end
 
-  -- Run whatever the user picked, after the picker window has closed.
-  local function run(item)
-    if not item then
-      return
-    end
-    if item.cmd then
-      pcall(vim.cmd, as_text(item.cmd))
-    elseif item.key then
-      pcall(vim.api.nvim_input, as_text(item.key))
+  local ok_help, help = pcall(require, "help")
+  local pretty = ok_help and help.pretty_key or function(k)
+    return k
+  end
+
+  local items = {}
+  local seen_cmd = {}
+
+  -- 1. Everything declared in lua/config/registry.lua.
+  local ok_registry, R = pcall(require, "config.registry")
+  if ok_registry then
+    for _, row in ipairs(R.help_rows()) do
+      if row.kind == "cmd" then
+        local name = row.key:gsub("^:", "")
+        seen_cmd[name] = true
+        table.insert(items, {
+          text = row.key .. "  " .. (row.desc or ""),
+          cmd = name,
+          desc = row.desc,
+          cat = row.cat,
+          kind = "command",
+        })
+      else
+        table.insert(items, {
+          text = pretty(row.key) .. "  " .. (row.desc or ""),
+          key = row.key,
+          desc = row.desc,
+          cat = row.cat,
+          modes = row.mode,
+          kind = "key",
+        })
+      end
     end
   end
 
+  -- 2. Commands Neovim or plugins define outside the registry, so the palette
+  -- is still a complete ":command" list.
+  for name, def in pairs(vim.api.nvim_get_commands({})) do
+    if not seen_cmd[name] then
+      table.insert(items, {
+        text = ":" .. name .. "  " .. (def.definition or ""),
+        cmd = name,
+        desc = def.definition or name,
+        cat = "Commands",
+        kind = "command",
+      })
+    end
+  end
+
+  table.sort(items, function(a, b)
+    if a.cat ~= b.cat then
+      return a.cat < b.cat
+    end
+    return a.text < b.text
+  end)
+
   S.picker.pick({
     title = "Command Palette",
-    -- "vim_commands" and "vim_keymaps" are two snacks sources searched at once.
-    finder = { "vim_commands", "vim_keymaps" },
+    -- A static finder: no re-scanning, and nothing to misconfigure.
+    finder = function()
+      return items
+    end,
 
-    -- Left side: the command or the key. Right side: what it does.
     format = function(item)
-      local parts = {}
-      if item.cmd then
-        parts[#parts + 1] = { as_text(item.cmd) .. "  ", "SnacksPickerFile" }
-        parts[#parts + 1] = { as_text(item.desc), "SnacksPickerComment" }
-      else
-        local inner = type(item.item) == "table" and item.item or {}
-        local key = item.key or inner.lhs or item.text or "?"
-        local desc = item.desc or inner.desc or ""
-        local modes = inner.modes and table.concat(inner.modes, ",") or ""
-        parts[#parts + 1] = { "[ " .. modes .. " ] ", "SnacksPickerComment" }
-        parts[#parts + 1] = { as_text(key) .. "  ", "SnacksPickerFile" }
-        parts[#parts + 1] = { as_text(desc), "SnacksPickerComment" }
-      end
-      return parts
+      local mode = item.modes and item.modes ~= "" and ("[" .. item.modes .. "] ") or ""
+      local label = item.kind == "command" and " › " or (mode .. "› ")
+      return {
+        { label, "SnacksPickerComment" },
+        { item.text or "", "SnacksPickerFile" },
+      }
     end,
 
     confirm = function(picker, item)
+      if not item then
+        return
+      end
       pcall(function()
         picker:close()
       end)
-      -- schedule: never run a command or press keys while the picker is busy.
+      -- Schedule: never run a command or press keys while the picker is busy.
       vim.schedule(function()
-        run(item)
+        if item.cmd then
+          pcall(vim.cmd, item.cmd)
+        elseif item.key then
+          pcall(vim.api.nvim_input, item.key)
+        end
       end)
     end,
   })
@@ -497,6 +540,20 @@ function M.setup(R)
       end
     end,
     desc = "Open lazygit (git app)",
+    cat = "Git",
+  })
+
+  R.map({
+    lhs = "<leader>gs",
+    rhs = function()
+      local S = snacks()
+      if S and S.picker then
+        S.picker.git_status()
+      else
+        vim.notify("snacks.nvim is not ready yet (try :Lazy)", vim.log.levels.WARN)
+      end
+    end,
+    desc = "Git status: changed files",
     cat = "Git",
   })
 

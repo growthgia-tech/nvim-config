@@ -18,7 +18,7 @@ CONFIG := $(shell cd "$(dir $(lastword $(MAKEFILE_LIST)))" && pwd)
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install verify docs format lint clean update
+.PHONY: help install verify docs format lint clean update tools
 
 help: ## Show this help
 	@printf '\n\033[1mNeovim config\033[0m  %s\n\n' "$(CONFIG)"
@@ -40,8 +40,11 @@ format: ## Format this config's Lua with stylua
 
 update: ## Update plugins and language tools
 	@$(NVIM) --headless "+Lazy! sync" +qa
-	@$(NVIM) --headless "+MasonToolsInstallSync" +qa
+	@cd "$(CONFIG)" && $(NVIM) --headless -c "lua dofile('scripts/install-tools.lua')" -c qa
 	@echo "Updated. Run 'make docs' if keymaps changed."
+
+tools: ## Install or repair language servers, formatters, linters, debuggers
+	@cd "$(CONFIG)" && $(NVIM) --headless -c "lua dofile('scripts/install-tools.lua')" -c qa
 
 clean: ## Remove installed plugins and language tools (keeps the config)
 	@printf 'Remove %s and %s? [y/<anything else>] ' \

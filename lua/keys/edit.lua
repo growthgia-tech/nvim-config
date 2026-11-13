@@ -21,11 +21,7 @@ function M.setup(R)
   -- Feed a key sequence as if you had typed it (termcodes turn "<CR>" into a
   -- real Enter key). "n" = do not remap, so our own maps cannot recurse.
   local function feed(keys)
-    vim.api.nvim_feedkeys(
-      vim.api.nvim_replace_termcodes(keys, true, false, true),
-      "n",
-      false
-    )
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(keys, true, false, true), "n", false)
   end
 
   local function move_lines(up)

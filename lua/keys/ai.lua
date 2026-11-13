@@ -36,10 +36,7 @@ function M.setup(R)
 
   local function oc()
     if vim.fn.executable("opencode") == 0 then
-      U.notify(
-        "The 'opencode' CLI is not installed. Run: brew install opencode",
-        WARN
-      )
+      U.notify("The 'opencode' CLI is not installed. Run: brew install opencode", WARN)
       return nil
     end
     local ok, mod = pcall(require, "opencode")

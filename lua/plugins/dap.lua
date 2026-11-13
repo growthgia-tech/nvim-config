@@ -51,11 +51,7 @@ local function configure_dap()
       -- You point at the built dll; the path is remembered per project by
       -- dap's own history.
       program = function()
-        return vim.fn.input(
-          "dll: ",
-          vim.fn.getcwd() .. "/bin/Debug/",
-          "file"
-        )
+        return vim.fn.input("dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file")
       end,
     },
   }

@@ -129,7 +129,12 @@ return {
         preset = {
           keys = {
             { icon = " ", key = "n", desc = "New file", action = ":ene | startinsert" },
-            { icon = " ", key = "r", desc = "Recent files", action = ":lua Snacks.picker.recent()" },
+            {
+              icon = " ",
+              key = "r",
+              desc = "Recent files",
+              action = ":lua Snacks.picker.recent()",
+            },
             { icon = " ", key = "f", desc = "Find file", action = ":lua Snacks.picker.files()" },
             { icon = " ", key = "g", desc = "Find text", action = ":lua Snacks.picker.grep()" },
             { icon = " ", key = "p", desc = "Projects", action = ":lua Snacks.picker.projects()" },

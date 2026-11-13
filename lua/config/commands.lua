@@ -71,10 +71,12 @@ R.cmd("ConfigDocs", function()
     vim.notify("scripts/gen-docs.lua is missing", vim.log.levels.WARN)
     return
   end
-  local res = vim.system({ "nvim", "--headless", "-c", "lua dofile('" .. script .. "')", "-c", "qa" }, {
-    cwd = root,
-    text = true,
-  }):wait()
+  local res = vim
+    .system({ "nvim", "--headless", "-c", "lua dofile('" .. script .. "')", "-c", "qa" }, {
+      cwd = root,
+      text = true,
+    })
+    :wait()
   if res.code == 0 then
     vim.notify("KEYBINDINGS.md regenerated", vim.log.levels.INFO)
   else

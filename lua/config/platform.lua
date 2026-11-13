@@ -19,7 +19,8 @@ local M = {}
 M.is_mac = vim.fn.has("mac") == 1
 M.is_linux = vim.fn.has("linux") == 1
 M.is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
-M.is_wsl = M.is_linux and vim.fn.readfile("/proc/version")[1] ~= nil
+M.is_wsl = M.is_linux
+  and vim.fn.readfile("/proc/version")[1] ~= nil
   and vim.fn.readfile("/proc/version")[1]:lower():find("microsoft") ~= nil
 
 M.name = M.is_mac and "macOS" or (M.is_windows and "Windows" or (M.is_wsl and "WSL" or "Linux"))

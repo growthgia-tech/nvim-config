@@ -42,8 +42,8 @@ is enabled everywhere; right-click opens a context menu.
 |---|---|---|
 | `Cmd+/` | `Ctrl+/` | Toggle comment |
 | `Cmd+Shift+Z` | `Ctrl+Shift+Z` | Redo |
-| `Cmd+Z` | `Ctrl+Z` | Undo |
 | `Cmd+Z` | `Ctrl+Z` | Undo (while typing) |
+| `Cmd+Z` | `Ctrl+Z` | Undo |
 | `Esc` |  | Clear search highlight |
 | `Alt+Down` |  | Move line (or selection) down |
 | `Alt+Shift+Down` |  | Duplicate line (or selection) down |
@@ -55,8 +55,8 @@ is enabled everywhere; right-click opens a context menu.
 | Key | Terminal | What it does |
 |---|---|---|
 | `Cmd+A` | `Ctrl+Shift+A` | Select all |
-| `Cmd+C` | `Ctrl+C` | Copy selection |
 | `Cmd+C` | `Ctrl+C` | Copy current line |
+| `Cmd+C` | `Ctrl+C` | Copy selection |
 | `Cmd+V` | `Ctrl+V` | Paste from system clipboard |
 | `Cmd+X` | `Ctrl+Shift+X` | Cut current line |
 | `Cmd+X` | `Ctrl+Shift+X` | Cut selection |
@@ -133,6 +133,8 @@ is enabled everywhere; right-click opens a context menu.
 | `Space xl` |  | Location list (window results) |
 | `Space xq` |  | Quickfix list (search results) |
 | `Space xx` |  | Problems panel (trouble) |
+| `[d` |  | Previous problem |
+| `]d` |  | Next problem |
 
 ## Debug
 
@@ -159,6 +161,7 @@ is enabled everywhere; right-click opens a context menu.
 |---|---|---|
 | `Space fg` |  | Changed files (git status) |
 | `Space gg` |  | Open lazygit (git app) |
+| `Space gs` |  | Git status: changed files |
 
 ## Terminal
 

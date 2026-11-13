@@ -49,9 +49,7 @@ function M.setup(R)
 
     if not sub then
       U.notify(
-        (':Tf needs one of: init, validate, plan, apply, fmt, output (got "%s")'):format(
-          name
-        ),
+        (':Tf needs one of: init, validate, plan, apply, fmt, output (got "%s")'):format(name),
         vim.log.levels.WARN
       )
       return

@@ -310,15 +310,9 @@ if ($DryRun) {
     }
 
     Note 'LSP servers, formatters, linters, debug adapters...'
-    # mason-tool-installer is lazy-loaded: its command does not exist until the
-    # plugin is loaded, so load it explicitly first.
-    $masonArgs = @(
-        '--headless',
-        '"+lua require(''lazy'').load({plugins={''mason.nvim'',''mason-lspconfig.nvim'',''mason-tool-installer.nvim''}})"',
-        '"+MasonToolsInstallSync"',
-        '+qa'
-    )
-    if (Run 'nvim' $masonArgs) {
+    # install-tools.lua reads the lists out of the plugin specs and waits for
+    # every install, which is more reliable than :MasonToolsInstallSync.
+    if (Run 'nvim' @('--headless', "-c `"lua dofile('$NvimDest\scripts\install-tools.lua')`"", '-c', 'qa')) {
         Ok 'language tools installed'
     } else {
         Warn "some Mason tools failed (see $Log) - open Neovim and run :Mason"

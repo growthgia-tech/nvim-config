@@ -117,57 +117,104 @@ return {
         return function()
           local ok, err = pcall(fn)
           if not ok then
-            vim.notify(
-              "Text object not available here: " .. tostring(err),
-              vim.log.levels.WARN
-            )
+            vim.notify("Text object not available here: " .. tostring(err), vim.log.levels.WARN)
           end
         end
       end
 
       -- af / if  = around / inside a function
-      vim.keymap.set({ "x", "o" }, "af", guard(function()
-        select.select_textobject("@function.outer", "textobjects")
-      end), { desc = "Select a whole function" })
+      vim.keymap.set(
+        { "x", "o" },
+        "af",
+        guard(function()
+          select.select_textobject("@function.outer", "textobjects")
+        end),
+        { desc = "Select a whole function" }
+      )
 
-      vim.keymap.set({ "x", "o" }, "if", guard(function()
-        select.select_textobject("@function.inner", "textobjects")
-      end), { desc = "Select the body of a function" })
+      vim.keymap.set(
+        { "x", "o" },
+        "if",
+        guard(function()
+          select.select_textobject("@function.inner", "textobjects")
+        end),
+        { desc = "Select the body of a function" }
+      )
 
       -- ac / ic  = around / inside a class
-      vim.keymap.set({ "x", "o" }, "ac", guard(function()
-        select.select_textobject("@class.outer", "textobjects")
-      end), { desc = "Select a whole class" })
+      vim.keymap.set(
+        { "x", "o" },
+        "ac",
+        guard(function()
+          select.select_textobject("@class.outer", "textobjects")
+        end),
+        { desc = "Select a whole class" }
+      )
 
-      vim.keymap.set({ "x", "o" }, "ic", guard(function()
-        select.select_textobject("@class.inner", "textobjects")
-      end), { desc = "Select the body of a class" })
+      vim.keymap.set(
+        { "x", "o" },
+        "ic",
+        guard(function()
+          select.select_textobject("@class.inner", "textobjects")
+        end),
+        { desc = "Select the body of a class" }
+      )
 
       -- aa / ia  = around / inside a parameter (one argument of a call)
-      vim.keymap.set({ "x", "o" }, "aa", guard(function()
-        select.select_textobject("@parameter.outer", "textobjects")
-      end), { desc = "Select a parameter" })
+      vim.keymap.set(
+        { "x", "o" },
+        "aa",
+        guard(function()
+          select.select_textobject("@parameter.outer", "textobjects")
+        end),
+        { desc = "Select a parameter" }
+      )
 
-      vim.keymap.set({ "x", "o" }, "ia", guard(function()
-        select.select_textobject("@parameter.inner", "textobjects")
-      end), { desc = "Select the inside of a parameter" })
+      vim.keymap.set(
+        { "x", "o" },
+        "ia",
+        guard(function()
+          select.select_textobject("@parameter.inner", "textobjects")
+        end),
+        { desc = "Select the inside of a parameter" }
+      )
 
       -- Movement: ]f next function, [f previous function, ]c/[c for classes.
-      vim.keymap.set({ "n", "x", "o" }, "]f", guard(function()
-        move.goto_next_start("@function.outer", "textobjects")
-      end), { desc = "Jump to the next function" })
+      vim.keymap.set(
+        { "n", "x", "o" },
+        "]f",
+        guard(function()
+          move.goto_next_start("@function.outer", "textobjects")
+        end),
+        { desc = "Jump to the next function" }
+      )
 
-      vim.keymap.set({ "n", "x", "o" }, "[f", guard(function()
-        move.goto_previous_start("@function.outer", "textobjects")
-      end), { desc = "Jump to the previous function" })
+      vim.keymap.set(
+        { "n", "x", "o" },
+        "[f",
+        guard(function()
+          move.goto_previous_start("@function.outer", "textobjects")
+        end),
+        { desc = "Jump to the previous function" }
+      )
 
-      vim.keymap.set({ "n", "x", "o" }, "]c", guard(function()
-        move.goto_next_start("@class.outer", "textobjects")
-      end), { desc = "Jump to the next class" })
+      vim.keymap.set(
+        { "n", "x", "o" },
+        "]c",
+        guard(function()
+          move.goto_next_start("@class.outer", "textobjects")
+        end),
+        { desc = "Jump to the next class" }
+      )
 
-      vim.keymap.set({ "n", "x", "o" }, "[c", guard(function()
-        move.goto_previous_start("@class.outer", "textobjects")
-      end), { desc = "Jump to the previous class" })
+      vim.keymap.set(
+        { "n", "x", "o" },
+        "[c",
+        guard(function()
+          move.goto_previous_start("@class.outer", "textobjects")
+        end),
+        { desc = "Jump to the previous class" }
+      )
     end,
   },
 

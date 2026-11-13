@@ -51,7 +51,12 @@ local function bootstrap()
 
     vim.fn.delete(lazypath, "rf")
     vim.api.nvim_echo(
-      { { ("lazy.nvim download failed (attempt %d of 3), retrying…\n"):format(attempt), "WarningMsg" } },
+      {
+        {
+          ("lazy.nvim download failed (attempt %d of 3), retrying…\n"):format(attempt),
+          "WarningMsg",
+        },
+      },
       true,
       {}
     )
@@ -64,7 +69,12 @@ if not bootstrap() then
   vim.api.nvim_echo({
     { "Could not download lazy.nvim.\n", "ErrorMsg" },
     { "Check your network, then run this to install it by hand:\n", "Normal" },
-    { "  git clone --depth 1 --branch stable https://github.com/folke/lazy.nvim.git " .. lazypath .. "\n", "Comment" },
+    {
+      "  git clone --depth 1 --branch stable https://github.com/folke/lazy.nvim.git "
+        .. lazypath
+        .. "\n",
+      "Comment",
+    },
   }, true, {})
   return
 end

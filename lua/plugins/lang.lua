@@ -182,10 +182,7 @@ return {
       if ok then
         table.insert(adapters, adapter)
       else
-        vim.notify(
-          "lang.lua: neotest-dotnet unavailable, tests are disabled",
-          vim.log.levels.DEBUG
-        )
+        vim.notify("lang.lua: neotest-dotnet unavailable, tests are disabled", vim.log.levels.DEBUG)
       end
       return { adapters = adapters }
     end,

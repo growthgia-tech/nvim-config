@@ -274,9 +274,9 @@ For quick looks without leaving the editor:
 
 | Key | What it does |
 |---|---|
-| `Space g s` | git status picker |
+| `Space g s` | git status: the changed files, ready to open |
 | `]c` / `[c` | next / previous changed hunk (in a diff) |
-| `Space g b` | blame the current line |
+| `Space f g` | the same status picker, if you think in terms of "find" |
 
 The gutter shows added/changed/deleted markers per line once a file is in a
 repository.

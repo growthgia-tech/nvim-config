@@ -170,12 +170,14 @@ pkg_name() {
     apt:fd)            echo "fd-find" ;;
     apt:node)          echo "nodejs" ;;
     apt:npm)           echo "npm" ;;
+    apt:python)        echo "python3" ;;
     apt:neovim)        echo "neovim" ;;
     apt:stylua|apt:terraform|apt:tflint|apt:tree-sitter-cli|apt:lazygit) echo "" ;;
     apt:*)             echo "$tool" ;;
     # Fedora
     dnf:fd)            echo "fd-find" ;;
     dnf:node)          echo "nodejs" ;;
+    dnf:python)        echo "python3" ;;
     dnf:stylua|dnf:terraform|dnf:tflint|dnf:tree-sitter-cli|dnf:lazygit) echo "" ;;
     dnf:*)             echo "$tool" ;;
     # Arch
@@ -237,6 +239,7 @@ TOOLS=(
   git
   node          # LSP servers and formatters are npm packages
   npm
+  python        # >= 3.10: debugpy (the Python debugger) is a pip package
   tmux          # optional: the `ide` layout
   jq
   shellcheck    # shell linter
@@ -295,6 +298,18 @@ if ! have fd && have fdfind; then
   mkdir -p "$HOME/.local/bin"
   ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd" 2>/dev/null || true
   ok "linked fdfind -> fd"
+fi
+
+# Python debugging needs 3.10+: debugpy is a pip package, not a binary.
+if have python3; then
+  if python3 -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' 2>/dev/null; then
+    ok "python3 $(python3 -c 'import platform; print(platform.python_version())')"
+  else
+    warn "python3 $(python3 -c 'import platform; print(platform.python_version())') is too old for debugpy (needs 3.10+)"
+    note "macOS keeps an old python3 in /usr/bin for the system; install a real one:"
+    note "  brew install python    # then open a new terminal"
+    note "Python editing, linting and formatting still work; only the debugger needs this."
+  fi
 fi
 
 # Tools that no distribution packages well. Install them the sane way, or say
@@ -615,11 +630,10 @@ else
   fi
 
   note "LSP servers, formatters, linters, debug adapters…"
-  # mason-tool-installer is lazily loaded, so its :MasonToolsInstallSync
-  # command does not exist until the plugin is loaded. Load it first.
-  if nvim --headless \
-    "+lua require('lazy').load({plugins={'mason.nvim','mason-lspconfig.nvim','mason-tool-installer.nvim'}})" \
-    "+MasonToolsInstallSync" +qa >>"$LOG" 2>&1; then
+  # install-tools.lua reads the package lists straight out of the plugin specs
+  # and waits for every install to finish, which :MasonToolsInstallSync does
+  # not do reliably on a slow connection.
+  if nvim --headless -c "lua dofile('$NVIM_DEST/scripts/install-tools.lua')" -c qa >>"$LOG" 2>&1; then
     ok "language tools installed"
   else
     warn "some Mason tools failed (see $LOG) — open Neovim and run :Mason"

@@ -97,8 +97,12 @@ w("worth two minutes:")
 w()
 w("| Where you run Neovim | Do Cmd shortcuts work? |")
 w("|---|---|")
-w("| **Neovide** (recommended) | **Yes.** It is a native macOS app, so Cmd+S, Cmd+P, Cmd+Z arrive as `<D-s>`, `<D-p>`, `<D-z>`. |")
-w("| Ghostty / iTerm / Terminal.app | **No.** The terminal and macOS consume Cmd first; a program inside a terminal cannot see it. Use the *Terminal* column. |")
+w(
+  "| **Neovide** (recommended) | **Yes.** It is a native macOS app, so Cmd+S, Cmd+P, Cmd+Z arrive as `<D-s>`, `<D-p>`, `<D-z>`. |"
+)
+w(
+  "| Ghostty / iTerm / Terminal.app | **No.** The terminal and macOS consume Cmd first; a program inside a terminal cannot see it. Use the *Terminal* column. |"
+)
 w("| tmux + `ide` layout | Same as the terminal above, plus tmux's own prefix (`Ctrl+B`). |")
 w()
 w("Every Cmd shortcut therefore has a terminal fallback bound as well, shown in")

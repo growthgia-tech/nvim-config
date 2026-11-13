@@ -68,6 +68,17 @@ end
 
 ---Configure + start every server. Called from nvim-lspconfig's config.
 local function setup_lsp()
+  -- Mason installs its binaries into a directory that is NOT on your shell's
+  -- PATH. mason.nvim adds it when it loads, but servers are enabled earlier
+  -- (on the first file), so vtsls would "not be executable" and completion
+  -- would silently never appear. Adding it here is deterministic and also
+  -- fixes conform, nvim-lint and nvim-dap, which look up the same binaries.
+  local P = require("config.platform")
+  local mason_bin = vim.fn.stdpath("data") .. "/mason/bin"
+  if vim.fn.isdirectory(mason_bin) == 1 and not (vim.env.PATH or ""):find(mason_bin, 1, true) then
+    vim.env.PATH = mason_bin .. P.pathsep .. (vim.env.PATH or "")
+  end
+
   -- "*" = settings shared by every language server.
   vim.lsp.config("*", {
     capabilities = capabilities(),
@@ -153,7 +164,10 @@ return {
   -- -------------------------------------------------------------------------
   {
     "neovim/nvim-lspconfig",
-    event = "VeryLazy",
+    -- BufReadPre, not VeryLazy: the server definitions must exist by the time
+    -- the first file is read, or the first buffer opens without completion
+    -- until you wipe it and reopen.
+    event = { "BufReadPre", "BufNewFile" },
     -- blink must be loaded first: its completion capabilities are handed to
     -- every server. If it is not there, setup_lsp() falls back safely.
     dependencies = { "saghen/blink.cmp" },
