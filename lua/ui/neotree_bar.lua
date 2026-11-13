@@ -22,9 +22,22 @@ local ICON = {
   menu = "\u{f141}", -- "..." panel menu
 }
 
--- Left to right: the file actions, then the panel switchers.
+-- Left to right: the file actions, then the two explorer views. The other
+-- side panels (search, git, debug, AI) live in the status line, where they
+-- have room for readable text labels.
 local TREE_BUTTONS = { "add", "folder", "refresh", "collapse" }
-local PANEL_BUTTONS = { "explorer", "search", "git", "debug", "editors", "menu", "ai" }
+local PANEL_BUTTONS = { "editors", "menu" }
+
+-- Text labels, not icon-only: at winbar size a lone glyph is hard to recognise
+-- (and some fonts render it as a box). These are clickable words.
+local LABEL = {
+  add = "+File",
+  folder = "+Folder",
+  refresh = "Reload",
+  collapse = "Fold",
+  editors = "Open",
+  menu = "...",
+}
 
 -- Neo-tree's own keys (its defaults.lua): the bar does exactly what they do.
 local TREE_KEY = { add = "a", folder = "A", refresh = "R", collapse = "z" }
@@ -47,6 +60,7 @@ local function tree_win()
       return win
     end
   end
+  return nil
 end
 
 ---Press a neo-tree key in its window. Mode "m" (remap) matters: "n" skips
@@ -113,14 +127,14 @@ end
 
 local SPANS = {} -- cells each button occupies, so a click maps to a name
 
----One clickable icon (`%N@func@label@`): `label` is what the user sees, `func`
----runs on click. A label is " icon"; a Nerd Font glyph is two cells wide, so a
----button takes 3 cells and the bar fits neo-tree's 32-column window.
-local function button(name, icon, col)
-  local text = " " .. icon
+---One clickable label (`%N@func@label%T`): `label` is what the user sees and
+---`%T` ends the click region. The trailing `%T` matters: `label@` would show a
+---literal "@" after every button (the click text runs to `%T`, not to `@`).
+local function button(name, label, col)
+  local text = " " .. (LABEL[name] or label)
   local width = vim.fn.strdisplaywidth(text)
   SPANS[#SPANS + 1] = { name = name, from = col, to = col + width - 1 }
-  return string.format("%%1@v:lua.NeoTreeBar.%s@%s@", name, text), col + width
+  return string.format("%%1@v:lua.NeoTreeBar.%s@%s%%T", name, text), col + width
 end
 
 ---The button covering 0-based cell `col`.
@@ -137,12 +151,12 @@ local function build_bar()
   local parts = { "%#WinBar#", "%#Title#" }
   local col = 0
   for _, name in ipairs(TREE_BUTTONS) do
-    parts[#parts + 1], col = button(name, ICON[name], col)
+    parts[#parts + 1], col = button(name, LABEL[name], col)
   end
   parts[#parts + 1] = "%#Comment# \u{2502} %#Title#"
   col = col + vim.fn.strdisplaywidth(" \u{2502} ")
   for _, name in ipairs(PANEL_BUTTONS) do
-    parts[#parts + 1], col = button(name, ICON[name], col)
+    parts[#parts + 1], col = button(name, LABEL[name], col)
   end
   parts[#parts + 1] = "%#WinBar#"
   return table.concat(parts)

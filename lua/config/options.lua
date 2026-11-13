@@ -14,6 +14,10 @@ vim.g.beginner_mode = true -- toggled by :Beginner and :VimMode
 -- Mouse: click to move, drag to select, drag borders to resize, wheel to scroll
 -- ---------------------------------------------------------------------------
 opt.mouse = "a"
+-- Report mouse movement too: the start screen's help icons show their
+-- explanation on hover (not only on click). Off by default in Neovim to avoid
+-- the extra events; this config only maps <MouseMove> on the dashboard.
+opt.mousemoveevent = true
 
 -- `mousemoveevent` is what makes hover tooltips and dropbar breadcrumb
 -- highlighting work. Neovim warns it can interrupt pending key sequences if

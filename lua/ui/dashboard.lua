@@ -267,6 +267,19 @@ local function attach(inst)
     nowait = true,
   })
 
+  -- True hover: 'mousemoveevent' delivers <MouseMove>, so the help icon can
+  -- explain itself without a click. Only act when the cell actually changed.
+  local hover_key
+  vim.keymap.set("n", "<MouseMove>", function()
+    local pos = vim.fn.getmousepos()
+    local key = ("%d:%d"):format(pos.line or 0, pos.column or 0)
+    if key == hover_key then
+      return
+    end
+    hover_key = key
+    idle()
+  end, { buffer = buf, desc = "Show help for the hovered dashboard item" })
+
   -- Caps Lock turns "i" into "I", which would otherwise drop into INSERT on a
   -- read-only buffer (E21: Cannot make changes). Map the uppercase form of
   -- every one-letter action to the same thing.

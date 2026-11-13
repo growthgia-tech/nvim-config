@@ -45,15 +45,18 @@ end
 -- Clickable statusline icons: the always-visible version of a VS Code
 -- activity bar. They live to the left of the filetype, and each one toggles a
 -- panel, so nothing is hidden behind a command or a leader menu.
-local function panel_icon(icon, fn)
+local function panel_icon(icon, label, fn)
   return {
     function()
-      return icon
+      return icon .. " " .. label
     end,
     on_click = function()
       pcall(fn)
     end,
-    padding = { left = 0, right = 1 },
+    -- A visible, theme-coloured label: an icon alone is unreadable at
+    -- statusline size, and Neovim has no mouse-hover event for tooltips.
+    color = "Title",
+    padding = { left = 1, right = 0 },
   }
 end
 
@@ -427,22 +430,22 @@ return {
         lualine_b = { "branch", "diff", "diagnostics" },
         lualine_c = { { "filename", path = 1 } },
         lualine_x = {
-          panel_icon("\u{f015}", function()
+          panel_icon("\u{f015}", "Home", function()
             require("snacks").dashboard()
           end),
-          panel_icon("\u{f0db}", function()
+          panel_icon("\u{f0db}", "Files", function()
             require("ui.panels").explorer()
           end),
-          panel_icon("\u{f002}", function()
+          panel_icon("\u{f002}", "Find", function()
             require("snacks").picker.grep()
           end),
-          panel_icon("\u{f1d3}", function()
+          panel_icon("\u{f1d3}", "Git", function()
             require("ui.source").changes()
           end),
-          panel_icon("\u{f188}", function()
+          panel_icon("\u{f188}", "Debug", function()
             require("ui.panels").debug_panel()
           end),
-          panel_icon("\u{f086}", function()
+          panel_icon("\u{f086}", "AI", function()
             require("ui.panels").ai_chat(true)
           end),
           lsp_status,
