@@ -69,6 +69,7 @@ leader keys. `KEYBINDINGS.md` shows exactly what each platform binds.
 | `Cmd+B` | `Ctrl+Shift+B` | toggle the file tree |
 | `Cmd+Shift+O` | `Ctrl+Shift+O` | jump to a symbol in this file |
 | `Space g g` | same | lazygit (stage, commit, push) |
+| `Space H` | same | the home/start screen (`:Home` also works) |
 
 **Editing**
 

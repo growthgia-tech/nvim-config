@@ -159,14 +159,6 @@ local function click()
   local inst = current
   M.close_tooltip()
 
-  -- Keep the normal left-click behaviour (place the cursor on the clicked cell)
-  -- by replaying the key without remapping, then run the item ourselves.
-  vim.api.nvim_feedkeys(
-    vim.api.nvim_replace_termcodes("<LeftMouse>", true, false, true),
-    "n",
-    false
-  )
-
   if not inst or not pos or type(pos.line) ~= "number" or pos.line <= 0 then
     return
   end
@@ -180,10 +172,20 @@ local function click()
     return
   end
 
+  -- The help icon must NOT replay <LeftMouse>: the cursor move fires
+  -- CursorMoved, and our own autocmd would close the explanation instantly.
   local line = vim.api.nvim_buf_get_lines(inst.buf, pos.line - 1, pos.line, false)[1] or ""
   if item.tooltip and on_help_icon(line, pos.column) then
     return show_tooltip(item)
   end
+
+  -- Any other cell behaves like a normal click: place the cursor first, then
+  -- run the item.
+  vim.api.nvim_feedkeys(
+    vim.api.nvim_replace_termcodes("<LeftMouse>", true, false, true),
+    "n",
+    false
+  )
 
   if not item.action then
     return
