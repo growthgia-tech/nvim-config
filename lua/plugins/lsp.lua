@@ -68,17 +68,9 @@ end
 
 ---Configure + start every server. Called from nvim-lspconfig's config.
 local function setup_lsp()
-  -- Mason installs its binaries into a directory that is NOT on your shell's
-  -- PATH. mason.nvim adds it when it loads, but servers are enabled earlier
-  -- (on the first file), so vtsls would "not be executable" and completion
-  -- would silently never appear. Adding it here is deterministic and also
-  -- fixes conform, nvim-lint and nvim-dap, which look up the same binaries.
-  local P = require("config.platform")
-  local mason_bin = vim.fn.stdpath("data") .. "/mason/bin"
-  if vim.fn.isdirectory(mason_bin) == 1 and not (vim.env.PATH or ""):find(mason_bin, 1, true) then
-    vim.env.PATH = mason_bin .. P.pathsep .. (vim.env.PATH or "")
-  end
-
+  -- PATH was already repaired at startup (lua/config/platform.lua), which is
+  -- what puts Mason's bin/ directory in front of an old system python3 and
+  -- makes a Finder-launched Neovide able to find ripgrep at all.
   -- "*" = settings shared by every language server.
   vim.lsp.config("*", {
     capabilities = capabilities(),

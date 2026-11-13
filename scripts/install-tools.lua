@@ -51,6 +51,7 @@ local SERVER_PACKAGE = {
   html = "html-lsp",
   cssls = "css-lsp",
   bashls = "bash-language-server",
+  lua_ls = "lua-language-server",
 }
 
 local wanted, seen = {}, {}
@@ -71,14 +72,57 @@ for _, tool in ipairs(tools) do
 end
 
 -- Filter down to what is actually missing.
+--
+-- If the binary is already on PATH — installed by Homebrew, by pnpm's global
+-- store, or by another tool — we do NOT install a second copy through Mason.
+-- One copy per tool is the rule on this machine, and it also means a slow
+-- network never blocks a server that already works.
+local BINARY = {
+  basedpyright = "basedpyright",
+  ruff = "ruff",
+  marksman = "marksman",
+  stylua = "stylua",
+  shellcheck = "shellcheck",
+  shfmt = "shfmt",
+  tflint = "tflint",
+  csharpier = "csharpier",
+  prettier = "prettier",
+  netcoredbg = "netcoredbg",
+  ["lua-language-server"] = "lua-language-server",
+  ["json-ls"] = "vscode-json-language-server",
+  ["html-lsp"] = "vscode-html-language-server",
+  ["css-lsp"] = "vscode-css-language-server",
+  ["eslint-lsp"] = "vscode-eslint-language-server",
+  ["tailwindcss-language-server"] = "tailwindcss-language-server",
+  ["yaml-language-server"] = "yaml-language-server",
+  ["bash-language-server"] = "bash-language-server",
+  ["emmet-language-server"] = "emmet-language-server",
+  ["terraform-ls"] = "terraform-ls",
+  vtsls = "vtsls",
+}
+
 local missing = {}
+local provided = {}
 for _, name in ipairs(wanted) do
+  -- Binary first: a tool that Homebrew or pnpm already provides is used as-is,
+  -- even if the Mason registry has not finished loading its catalogue.
+  local bin = BINARY[name]
+  local found = bin and vim.fn.exepath(bin) or ""
   local ok, pkg = pcall(registry.get_package, name)
-  if ok and not pkg:is_installed() then
-    table.insert(missing, name)
+
+  if ok and pkg:is_installed() then
+    -- Mason already owns it.
+  elseif found ~= "" then
+    table.insert(provided, ("%s -> %s"):format(name, found))
   elseif not ok then
-    print(("  ?  %s is not in the registry (skipped)"):format(name))
+    print(("  ?  %s is not a known Mason package (skipped)"):format(name))
+  else
+    table.insert(missing, name)
   end
+end
+
+for _, line in ipairs(provided) do
+  print(("  =  using %s"):format(line))
 end
 
 if #missing == 0 then

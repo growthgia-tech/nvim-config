@@ -223,6 +223,34 @@ check("mouse is enabled", function()
   assert_true(vim.o.mouse:find("a") ~= nil, "mouse is off")
 end)
 
+-- A GUI app launched from Finder gets a minimal PATH. If the config did not
+-- repair it, ripgrep/fd/opencode and every language server would be missing.
+check("PATH contains the tool directories", function()
+  local P = require("config.platform")
+  local path = vim.env.PATH or ""
+  local needed = {}
+
+  if P.is_mac then
+    table.insert(needed, "/opt/homebrew/bin")
+    table.insert(needed, vim.fs.joinpath(vim.uv.os_homedir(), "Library", "pnpm", "bin"))
+  elseif not P.is_windows then
+    table.insert(needed, "/usr/local/bin")
+    table.insert(needed, vim.fs.joinpath(vim.uv.os_homedir(), ".local", "bin"))
+  end
+  table.insert(needed, vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "bin"))
+
+  local missing = {}
+  for _, dir in ipairs(needed) do
+    if vim.fn.isdirectory(dir) == 1 and not path:find(dir, 1, true) then
+      table.insert(missing, dir)
+    end
+  end
+
+  if #missing > 0 then
+    error("not on PATH: " .. table.concat(missing, ", "))
+  end
+end)
+
 check("clipboard is integrated", function()
   assert_true(vim.o.clipboard:find("unnamedplus") ~= nil or vim.o.clipboard:find("unnamed") ~= nil)
 end)

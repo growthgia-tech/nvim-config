@@ -239,6 +239,7 @@ TOOLS=(
   git
   node          # LSP servers and formatters are npm packages
   npm
+  pnpm          # the preferred way to install Node tools on this machine
   python        # >= 3.10: debugpy (the Python debugger) is a pip package
   tmux          # optional: the `ide` layout
   jq
@@ -314,6 +315,18 @@ fi
 
 # Tools that no distribution packages well. Install them the sane way, or say
 # exactly what to run.
+# Install a Node package globally. pnpm first: it shares one content-addressed
+# store across the whole machine (hardlinked, one copy per version), which npm
+# does not do. npm stays as the fallback for machines without pnpm.
+node_global_add() {
+  local pkg="$1"
+  if have pnpm; then
+    run pnpm add -g "$pkg"
+  else
+    run npm install -g "$pkg"
+  fi
+}
+
 manual_hint() {
   case "$1" in
     tree-sitter-cli) echo "npm install -g tree-sitter-cli" ;;
@@ -334,8 +347,8 @@ done
 # npm-based tools, when npm is now available.
 if have npm; then
   if ! have tree-sitter; then
-    if ask "Install tree-sitter-cli with npm (needed for syntax highlighting)?"; then
-      run npm install -g tree-sitter-cli || warn "npm install failed; you can retry later"
+    if ask "Install tree-sitter-cli (needed for syntax highlighting)?"; then
+      node_global_add tree-sitter-cli || warn "install failed; you can retry later"
       have tree-sitter && ok "tree-sitter-cli"
     fi
   fi
@@ -354,8 +367,8 @@ else
   if ask "Install the opencode CLI?"; then
     if [[ "$PKG" == "brew" ]]; then
       run brew install opencode || warn "opencode install failed"
-    elif have npm; then
-      run npm install -g opencode-ai || warn "opencode install failed"
+    elif have pnpm || have npm; then
+      node_global_add opencode-ai || warn "opencode install failed"
     else
       note "See https://opencode.ai/docs for the install command on your platform."
     fi

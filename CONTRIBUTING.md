@@ -69,6 +69,21 @@ return {
 - If it needs a binary, add it to `mason-tool-installer`'s `ensure_installed`
   (in `lua/plugins/lsp.lua`) rather than telling the user to install it.
 
+## Installing a Node tool
+
+Use pnpm, never a second npm tree:
+
+```sh
+pnpm add -g <package>          # shared store, one copy per version
+pnpm store path                # where that store lives
+```
+
+The config's installer does the same thing, falls back to npm only when pnpm is
+absent, and `lua/config/platform.lua` puts pnpm's global `bin` on Neovim's
+`PATH`. A tool installed by Homebrew or pnpm is used as-is: `scripts/install-tools.lua`
+skips any Mason package whose binary is already on `PATH`, so you never end up
+with two copies of the same server.
+
 ## Adding a language
 
 1. `:Mason`, install the server, confirm it starts on a real file.

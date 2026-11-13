@@ -72,6 +72,15 @@ function Ask($prompt) {
     return $answer -match '^[Yy]'
 }
 
+# Install a Node package globally. pnpm first: one shared content-addressed
+# store for the whole machine (one copy per version), npm only as a fallback.
+function NodeGlobalAdd([string]$package) {
+    if (Have 'pnpm') {
+        return Run 'pnpm' @('add', '-g', $package)
+    }
+    return Run 'npm' @('install', '-g', $package)
+}
+
 # Run a command, honouring -DryRun, and always log its output.
 function Run([string]$exe, [string[]]$arguments) {
     $pretty = "$exe $($arguments -join ' ')"
@@ -125,6 +134,7 @@ $Packages = [ordered]@{
     'fd'       = 'sharkdp.fd'
     'git'      = 'Git.Git'
     'node'     = 'OpenJS.NodeJS.LTS'
+    'pnpm'     = 'pnpm.pnpm'
     'lazygit'  = 'JesseDuffield.lazygit'
 }
 $GuiPackages = [ordered]@{
@@ -155,8 +165,8 @@ foreach ($pair in $Packages.GetEnumerator()) {
 # Packages that are useful but not available through a package manager.
 if (-not (Have 'tree-sitter')) {
     if (Have 'npm') {
-        if (Ask 'Install tree-sitter-cli with npm (needed for syntax highlighting)?') {
-            if (Run 'npm' @('install', '-g', 'tree-sitter-cli')) { Ok 'tree-sitter-cli' }
+        if (Ask 'Install tree-sitter-cli (needed for syntax highlighting)?') {
+            if (NodeGlobalAdd 'tree-sitter-cli') { Ok 'tree-sitter-cli' }
             else { Warn 'tree-sitter-cli failed; highlighting still works, just slower' }
         }
     } else {
@@ -167,8 +177,8 @@ if (-not (Have 'tree-sitter')) {
 
 if (-not (Have 'opencode')) {
     Warn "the 'opencode' CLI is not on PATH"
-    if (Ask 'Install the opencode CLI with npm?') {
-        if (Run 'npm' @('install', '-g', 'opencode-ai')) { Ok 'opencode' }
+    if (Ask 'Install the opencode CLI with pnpm (or npm)?') {
+        if (NodeGlobalAdd 'opencode-ai') { Ok 'opencode' }
         else { Note 'See https://opencode.ai/docs for the Windows install command.' }
     }
 } else {

@@ -47,8 +47,14 @@ instead of silently letting the last one win.
 
 ## Platforms
 
-`lua/config/platform.lua` answers one question: does this machine have a Cmd
-key? On macOS it does, so `<D-s>` is bound. On Linux and Windows it does not, so
+`lua/config/platform.lua` also repairs `PATH` at startup. A GUI app launched
+from Finder gets a minimal `PATH`, and Homebrew is often *last* in a shell's
+`PATH`, so `/usr/bin/python3` shadows the current one. The module therefore
+puts Homebrew, pnpm's global bin, `~/.local/bin`, `~/.dotnet/tools` and Mason's
+`bin` at the front, in that order. Without it, ripgrep, fd, opencode and every
+language server would silently "not exist" inside Neovide.
+
+It also answers one question: does this machine have a Cmd key? On macOS it does, so `<D-s>` is bound. On Linux and Windows it does not, so
 the registry binds only the `term` fallback (`<C-s>`) and skips `<D-…>`
 entirely. A few Vim-essential chords (`Ctrl+W`, `Ctrl+B`, `Ctrl+V`, insert-mode
 `Ctrl+P`) are never stolen; those actions use `Ctrl+Shift+` instead.

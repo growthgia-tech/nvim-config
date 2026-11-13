@@ -77,4 +77,73 @@ function M.has(bin)
   return vim.fn.executable(bin) == 1
 end
 
+-- ---------------------------------------------------------------------------
+-- PATH
+-- ---------------------------------------------------------------------------
+---Directories that should always be visible to Neovim, in priority order.
+---
+---Why this is necessary: a GUI app launched from Finder or Spotlight (Neovide!)
+---gets a minimal PATH — usually just /usr/bin:/bin:/usr/sbin:/sbin. Homebrew,
+---~/.local/bin and Mason's bin are all missing, so ripgrep, fd, opencode and
+---every language server would silently "not exist". It also fixes the common
+---case where Homebrew is at the *end* of a shell's PATH, so an old system
+---python3 shadows the current one.
+local function wanted_dirs()
+  local dirs = {}
+  local home = vim.uv.os_homedir()
+
+  if M.is_windows then
+    table.insert(dirs, vim.fs.joinpath(vim.env.LOCALAPPDATA or home, "Microsoft", "WinGet", "Links"))
+    table.insert(dirs, vim.fs.joinpath(vim.env.LOCALAPPDATA or home, "pnpm"))
+    table.insert(dirs, vim.fs.joinpath(home, ".local", "bin"))
+  else
+    if M.is_mac then
+      table.insert(dirs, "/opt/homebrew/bin")
+      table.insert(dirs, "/opt/homebrew/sbin")
+      -- pnpm's global binaries (one shared store, symlinked into projects).
+      table.insert(dirs, vim.fs.joinpath(home, "Library", "pnpm", "bin"))
+    end
+    table.insert(dirs, "/usr/local/bin")
+    table.insert(dirs, "/usr/local/sbin")
+    table.insert(dirs, vim.fs.joinpath(home, ".local", "bin"))
+    table.insert(dirs, vim.fs.joinpath(home, ".local", "share", "pnpm"))
+    table.insert(dirs, vim.fs.joinpath(home, ".dotnet", "tools"))
+  end
+
+  -- Anything Mason installed (language servers, formatters, debug adapters).
+  table.insert(dirs, vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "bin"))
+
+  return dirs
+end
+
+---Put the important directories at the FRONT of PATH. Idempotent.
+---
+---Ordering matters, not just presence: Homebrew is often *last* in a shell's
+---PATH, so `/usr/bin/python3` (3.9 on macOS) shadows the current Homebrew
+---python, and Mason refuses to install debugpy because it needs 3.10+. Putting
+---our directories first fixes that deterministically.
+function M.ensure_path()
+  local current = vim.env.PATH or ""
+
+  local dirs = {}
+  local priority = {}
+  for _, dir in ipairs(wanted_dirs()) do
+    if vim.fn.isdirectory(dir) == 1 then
+      priority[dir] = true
+      table.insert(dirs, dir)
+    end
+  end
+
+  for _, dir in ipairs(vim.split(current, M.pathsep, { plain = true })) do
+    if dir ~= "" and not priority[dir] then
+      table.insert(dirs, dir)
+    end
+  end
+
+  local new = table.concat(dirs, M.pathsep)
+  if new ~= current then
+    vim.env.PATH = new
+  end
+end
+
 return M

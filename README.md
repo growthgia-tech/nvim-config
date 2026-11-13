@@ -213,7 +213,7 @@ What it installs, by platform:
 | Editor | `neovim` | `neovim` | `Neovim.Neovim` |
 | Search | `ripgrep`, `fd` | `ripgrep`, `fd-find` (linked as `fd`) | `BurntSushi.ripgrep.MSVC`, `sharkdp.fd` |
 | Git | `git`, `lazygit` | `git` | `Git.Git`, `JesseDuffield.lazygit` |
-| Node | `node` | `nodejs`, `npm` | `OpenJS.NodeJS.LTS` |
+| Node | `node` + `pnpm` | `nodejs`, `npm`, `pnpm` | `OpenJS.NodeJS.LTS`, `pnpm.pnpm` |
 | Python (Python debugging) | `python` (3.10+) | `python3` (3.10+) | via `:Mason` |
 | Parsers | `tree-sitter-cli` | via `npm` | via `npm` |
 | Lua/shell tooling | `stylua`, `shfmt`, `shellcheck` | `shfmt`, `shellcheck` (+ `cargo` for stylua) | via Mason |
@@ -326,6 +326,8 @@ and "it works".
 | No completion in a file | `:LspInfo`; check the filetype is in the table above |
 | A server never installs | `:Mason`, `:MasonLog` |
 | Icons are boxes | the Nerd Font is missing; re-run the installer without `--skip-gui` |
+| `ERR_PNPM_GLOBAL_BIN_DIR_NOT_IN_PATH` | run `pnpm setup`, or add `~/Library/pnpm/bin` to PATH (Neovim already does this for itself) |
+| A Node tool is installed but Neovim cannot see it | it is probably in pnpm's global bin; `:lua print(vim.fn.exepath("name"))` shows what Neovim resolves |
 | `module 'lazy' not found` | interrupted download; delete `~/.local/share/nvim/lazy/lazy.nvim` and restart |
 | Everything is on fire | `Cmd+Q` / `:q!`; undo history is on disk |
 

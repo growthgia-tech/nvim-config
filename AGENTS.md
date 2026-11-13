@@ -57,9 +57,10 @@ later.
 2. **Guard every optional dependency.** `pcall(require, "...")`, and tell the
    user what to run when it fails. The editor must open even with zero plugins
    installed (first launch clones them).
-3. **Never touch the user's toolchain.** No `dotnet` upgrade, no global
-   `npm install` outside the documented list, no `sudo` outside `install.sh`
-   and only for the package manager.
+3. **Never touch the user's toolchain.** No `dotnet` upgrade, no `npm install`
+   anywhere (Node tools go through `pnpm add -g`, which shares one store), no
+   `sudo` outside `install.sh` and only for the package manager. If a binary is
+   already on `PATH`, use it instead of installing a second copy.
 4. **Platform differences go in `lua/config/platform.lua`.** Do not scatter
    `vim.fn.has("mac")` through the config. Cmd exists only on macOS; the
    registry binds the portable fallback elsewhere.

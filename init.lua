@@ -16,6 +16,12 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 require("config.options")
+
+-- Neovide opened from Finder, and terminals that put Homebrew last, both give
+-- Neovim a PATH where ripgrep, fd, opencode and the language servers are
+-- missing. Fix that before anything tries to look for a binary.
+require("config.platform").ensure_path()
+
 require("keys").setup()
 require("config.autocmds")
 require("config.lazy")
