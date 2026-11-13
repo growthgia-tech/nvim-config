@@ -33,7 +33,16 @@ local function pick(what, opts)
     vim.notify("Snacks.picker." .. what .. " is not available", vim.log.levels.WARN)
     return
   end
-  fn(opts)
+
+  local picker = fn(opts)
+
+  -- VS Code: typing ">" in Quick Open switches to the command palette.
+  if what == "files" or what == "recent" then
+    pcall(function()
+      require("ui.quickopen").watch(picker)
+    end)
+  end
+  return picker
 end
 
 ---Turn a value that may be a string or a list of keys into one readable line.

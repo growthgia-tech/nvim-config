@@ -59,7 +59,7 @@ If the config already lives at `~/.config/nvim` (the usual case), just run
 
 | Kind | Packages |
 |---|---|
-| Formulae | `neovim`, `ripgrep`, `fd`, `git`, `node`, `npm`, `pnpm`, `python`, `tmux`, `jq`, `shellcheck`, `shfmt`, `stylua`, `tree-sitter-cli`, `terraform`, `tflint`, `lazygit` |
+| Formulae | `neovim`, `ripgrep`, `fd`, `git`, `node`, `npm`, `pnpm`, `python`, `tmux`, `jq`, `shellcheck`, `shfmt`, `stylua`, `tree-sitter-cli`, `terraform`, `tflint`, `lazygit`, `chafa`, `imagemagick` |
 | Taps | `hashicorp/tap`, `terraform-linters/tap` (both trusted during install) |
 | Casks | `neovide`, `font-jetbrains-mono-nerd-font` |
 | Node servers (via pnpm) | `@vtsls/language-server`, `yaml-language-server`, `bash-language-server`, `vscode-langservers-extracted`, `@olrtg/emmet-language-server`, `@tailwindcss/language-server`, `basedpyright`, `prettier` |
@@ -96,6 +96,7 @@ installing anything with `sudo`. It maps package names per manager:
 | Node | `nodejs` + `npm` | `nodejs` | `node` | `nodejs` |
 | Python | `python3` (needs ≥ 3.10 for `debugpy`) | `python3` | `python` | `python3` |
 | `stylua`, `terraform`, `tflint`, `lazygit`, `tree-sitter-cli` | not packaged → installed via `cargo`/`npm`/manual hint | same | usually packaged | same |
+| Image previews | `chafa` + `imagemagick` | `chafa` + `ImageMagick` | `chafa` + `imagemagick` | `chafa` + `ImageMagick` |
 
 Anything a distribution does not package is reported with the exact manual
 command rather than silently skipped.
@@ -182,6 +183,7 @@ never to `~/.config`.
 | pnpm | `pnpm.pnpm` |
 | lazygit | `JesseDuffield.lazygit` |
 | Neovide | `Neovide.Neovide` |
+| ImageMagick (image info) | `ImageMagick.ImageMagick` |
 
 Node tools use pnpm when present (shared store), npm otherwise. Language
 servers/adapters that winget does not carry are installed by Mason on first

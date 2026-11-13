@@ -139,16 +139,12 @@ local ACTIONS = {
 }
 
 local function allowed(item, info)
-  if item.needs == "dir" then
-    return info.dir ~= nil
-  elseif item.needs == "path" then
-    return info.path ~= nil
-  elseif item.needs == "file" then
-    return info.path ~= nil and not info.is_root
-  elseif item.needs == "paste" then
+  if item.needs == "paste" then
     return info.dir ~= nil and clipboard_filled()
   end
-  return true
+  return (item.needs == "dir" and info.dir ~= nil)
+    or (item.needs == "path" and info.path ~= nil)
+    or (item.needs == "file" and info.path ~= nil and not info.is_root)
 end
 
 -- The floating menu ---------------------------------------------------------
@@ -204,7 +200,6 @@ local function show_menu(info, tree_win)
       return
     end
     close()
-    -- Let the float finish closing before feeding the tree its key.
     vim.schedule(function()
       if not vim.api.nvim_win_is_valid(tree_win) then
         return
