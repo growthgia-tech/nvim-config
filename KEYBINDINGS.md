@@ -42,8 +42,8 @@ is enabled everywhere; right-click opens a context menu.
 |---|---|---|
 | `Cmd+/` | `Ctrl+/` | Toggle comment |
 | `Cmd+Shift+Z` | `Ctrl+Shift+Z` | Redo |
-| `Cmd+Z` | `Ctrl+Z` | Undo (while typing) |
 | `Cmd+Z` | `Ctrl+Z` | Undo |
+| `Cmd+Z` | `Ctrl+Z` | Undo (while typing) |
 | `Esc` |  | Clear search highlight |
 | `Alt+Down` |  | Move line (or selection) down |
 | `Alt+Shift+Down` |  | Duplicate line (or selection) down |
@@ -58,8 +58,8 @@ is enabled everywhere; right-click opens a context menu.
 | `Cmd+C` | `Ctrl+C` | Copy selection |
 | `Cmd+C` | `Ctrl+C` | Copy current line |
 | `Cmd+V` | `Ctrl+V` | Paste from system clipboard |
-| `Cmd+X` | `Ctrl+Shift+X` | Cut current line |
 | `Cmd+X` | `Ctrl+Shift+X` | Cut selection |
+| `Cmd+X` | `Ctrl+Shift+X` | Cut current line |
 
 ## Search
 
@@ -225,15 +225,6 @@ is enabled everywhere; right-click opens a context menu.
 | `Space hp` |  | What to press when stuck |
 | `Space ht` |  | Beginner tutorial |
 
-## Toggle
-
-| Key | Terminal | What it does |
-|---|---|---|
-| `Space uc` |  | Toggle concealed markup |
-| `Space ui` |  | Toggle indent guides |
-| `Space us` |  | Toggle spell check |
-| `Space uz` |  | Toggle soft wrap |
-
 ## Buffers
 
 | Key | Terminal | What it does |
@@ -264,6 +255,15 @@ is enabled everywhere; right-click opens a context menu.
 | `Space bo` |  | Close all other buffers (keeps unsaved ones) |
 | `Space bp` |  | Previous buffer |
 
+## Toggle
+
+| Key | Terminal | What it does |
+|---|---|---|
+| `Space uc` |  | Toggle concealed markup |
+| `Space ui` |  | Toggle indent guides |
+| `Space us` |  | Toggle spell check |
+| `Space uz` |  | Toggle soft wrap |
+
 ## Commands
 
 Type `:` then the name. Tab completes. They are grouped by purpose.
@@ -283,6 +283,8 @@ Type `:` then the name. Tab completes. They are grouped by purpose.
 |---|---|
 | `:Format` | Format the current buffer |
 | `:FormatToggle` | Toggle format on save for this buffer |
+| `:InsertMode` | Start editing (INSERT mode) |
+| `:NormalMode` | Stop editing (NORMAL mode) |
 
 ### Search
 
@@ -315,6 +317,8 @@ Type `:` then the name. Tab completes. They are grouped by purpose.
 | Command | What it does |
 |---|---|
 | `:Explorer` | Show or hide the file explorer |
+| `:ExplorerMenu` | Explorer panel menu (open editors, close all/saved, ...) |
+| `:OpenEditors` | Show or hide the open-editors list |
 
 ### Diagnostics
 

@@ -421,7 +421,9 @@ return {
         icons_enabled = true,
       },
       sections = {
-        lualine_a = { mode_text },
+        -- The mode is a button: click it to jump between NORMAL and INSERT.
+        -- Beginner mode starts files in INSERT (lua/ui/mode.lua).
+        lualine_a = { require("ui.mode").pill() },
         lualine_b = { "branch", "diff", "diagnostics" },
         lualine_c = { { "filename", path = 1 } },
         lualine_x = {

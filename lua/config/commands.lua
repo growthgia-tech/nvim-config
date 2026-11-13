@@ -26,6 +26,14 @@ R.cmd("ConfigUpdate", function()
   vim.notify("Plugins and tools updated", vim.log.levels.INFO)
 end, { desc = "Update plugins and Mason tools", cat = "Config" })
 
+R.cmd("InsertMode", function()
+  vim.cmd.startinsert()
+end, { desc = "Start editing (INSERT mode)", cat = "Editing" })
+
+R.cmd("NormalMode", function()
+  vim.cmd.stopinsert()
+end, { desc = "Stop editing (NORMAL mode)", cat = "Editing" })
+
 R.cmd("Home", function()
   local ok, snacks = pcall(require, "snacks")
   if not ok then

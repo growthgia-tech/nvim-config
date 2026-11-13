@@ -109,3 +109,9 @@ vim.api.nvim_create_autocmd("BufReadPre", {
   end,
   desc = "Disable heavy features in >2MB files",
 })
+
+-- Beginner mode opens files in INSERT so typing works immediately; the
+-- NORMAL/INSERT pill in the statusline switches back and forth.
+pcall(function()
+  require("ui.mode").setup()
+end)

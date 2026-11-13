@@ -30,12 +30,17 @@ You can always get back to it with `:lua Snacks.dashboard()`.
 Everything else is a detail.
 
 **Modes.** VS Code has one mode: you type and characters appear. Vim has
-several. You start in **Normal** mode, where keys are commands (`d` deletes,
-`u` undoes) instead of text. Press `i` to get **Insert** mode and type like
-normal. Press `Esc` to go back to Normal.
+several. This config is configured for a VS Code habit: in **Beginner mode**
+(the default) opening a file puts you in **Insert**, so you can type straight
+away. Press `Esc` to get **Normal** mode, where keys are commands (`d` deletes,
+`u` undoes) instead of text, and `i` to come back.
 
-That is the whole idea. When something "doesn't type", you are in Normal mode.
-Press `i`.
+The pill at the far left of the status bar always says which mode you are in.
+It is also a button: click it to switch. `:VimMode` turns the automatic
+Insert on open off, and `:Beginner` turns it back on.
+
+When something "doesn't type", check the pill: you are in Normal mode. Press
+`i`.
 
 **The editor is the window.** The chrome is quiet: there is no permanent tree
 or toolbar to click through. Buffers (open files) exist whether or not you can

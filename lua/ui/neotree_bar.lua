@@ -1,12 +1,9 @@
 -- lua/ui/neotree_bar.lua
 --
--- VS Code puts a small icon toolbar above the file explorer: new file, new
--- folder, refresh, collapse all. Neo-tree has nothing there, so those actions
--- are keyboard-only ("a", "A", "R", "z") and hard to discover.
---
--- This module draws that toolbar in the neo-tree window's *window bar*, with
--- every icon a mouse target, plus a second group that switches the side panels.
--- Only neo-tree windows get a bar; every other window keeps dropbar's bars.
+-- VS Code puts an icon toolbar above the file explorer: new file, new folder,
+-- refresh, collapse all. Neo-tree has none, so those actions are keyboard-only.
+-- This module draws that toolbar in the neo-tree *window bar* (file actions, a
+-- divider, then the side panels). Other windows keep dropbar's breadcrumbs.
 
 local M = {}
 
@@ -21,49 +18,46 @@ local ICON = {
   git = "\u{f1d3}", -- git branch
   debug = "\u{f188}", -- bug
   ai = "\u{f086}", -- speech bubbles
-}
-
--- Neo-tree's own default mappings (see its defaults.lua). Reusing the keys
--- instead of calling internals keeps the toolbar correct across neo-tree
--- versions and gives exactly the behaviour the keys already have.
-local TREE_KEY = {
-  add = "a", -- add
-  folder = "A", -- add_directory
-  refresh = "R", -- refresh
-  collapse = "z", -- close_all_nodes
+  editors = "\u{f0c5}", -- open editors (stacked pages)
+  menu = "\u{f141}", -- "..." panel menu
 }
 
 -- Left to right: the file actions, then the panel switchers.
 local TREE_BUTTONS = { "add", "folder", "refresh", "collapse" }
-local PANEL_BUTTONS = { "explorer", "search", "git", "debug", "ai" }
+local PANEL_BUTTONS = { "explorer", "search", "git", "debug", "editors", "menu", "ai" }
 
----True for a real neo-tree split (not a float, not another buffer).
-local function is_tree(win)
-  return vim.api.nvim_win_is_valid(win)
-    and vim.api.nvim_win_get_config(win).relative == ""
-    and vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "neo-tree"
-end
+-- Neo-tree's own keys (its defaults.lua): the bar does exactly what they do.
+local TREE_KEY = { add = "a", folder = "A", refresh = "R", collapse = "z" }
 
----The neo-tree window to act on, or nil when the explorer is closed.
-local function neo_tree_win()
-  -- The click arrives on the tree's own winbar, so that window is normally the
-  -- current one. After a toggle it can be gone, hence the search below.
-  local current = vim.api.nvim_get_current_win()
-  if is_tree(current) then
-    return current
-  end
+-- What each panel button opens: ui/panels, or a snacks picker (with fallback).
+local PANEL = {
+  explorer = { panels = "explorer" },
+  search = { picker = "grep" },
+  git = { panels = "git_changes" },
+  debug = { picker = "diagnostics", fallback = "Trouble diagnostics" },
+  ai = { panels = "ai_chat", arg = true }, -- focus the chat when it opens
+}
+
+---A non-floating window showing a neo-tree buffer, or nil.
+local function tree_win()
   for _, win in ipairs(vim.api.nvim_list_wins()) do
-    if is_tree(win) then
+    local buf = vim.api.nvim_win_get_buf(win)
+    local split = vim.api.nvim_win_get_config(win).relative == ""
+    if split and vim.bo[buf].filetype == "neo-tree" then
       return win
     end
   end
 end
 
----Press a neo-tree key in its window. Mode "m" (remap) matters: "n" would skip
+---Press a neo-tree key in its window. Mode "m" (remap) matters: "n" skips
 ---mappings, so "a" would start Insert mode instead of neo-tree's add.
-local function feed(win, keys)
+local function tree_key(key)
+  local win = tree_win()
+  if not win then
+    return vim.notify("The file explorer is not open (Cmd+B opens it)", vim.log.levels.WARN)
+  end
   pcall(vim.api.nvim_set_current_win, win)
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(keys, true, false, true), "m", false)
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, false, true), "m", false)
 end
 
 ---Call a function from ui/panels lazily: a missing module must only warn.
@@ -71,8 +65,7 @@ local function with_panels(name, ...)
   local ok, panels = pcall(require, "ui.panels")
   local fn = ok and panels[name]
   if type(fn) ~= "function" then
-    vim.notify("ui.panels." .. name .. " is not available", vim.log.levels.WARN)
-    return
+    return vim.notify("ui.panels." .. name .. " is not available", vim.log.levels.WARN)
   end
   local called, err = pcall(fn, ...)
   if not called then
@@ -80,7 +73,7 @@ local function with_panels(name, ...)
   end
 end
 
----Open a snacks picker, falling back to a Vim command when snacks fails.
+---Open a snacks picker, with a Vim command as fallback.
 local function picker(what, fallback)
   local ok, snacks = pcall(require, "snacks")
   local fn = ok and snacks.picker and snacks.picker[what]
@@ -88,53 +81,29 @@ local function picker(what, fallback)
     return
   end
   if fallback then
-    pcall(vim.cmd, fallback)
-  else
-    vim.notify("snacks.nvim is not ready yet (try :Lazy)", vim.log.levels.WARN)
+    return pcall(vim.cmd, fallback)
   end
-end
-
----Run one toolbar button by name.
-local function run(name)
-  local key = TREE_KEY[name]
-  if key then
-    local win = neo_tree_win()
-    if not win then
-      vim.notify("The file explorer is not open (Cmd+B opens it)", vim.log.levels.WARN)
-      return
-    end
-    feed(win, key)
-    return
-  end
-
-  if name == "explorer" then
-    with_panels("explorer")
-  elseif name == "search" then
-    picker("grep")
-  elseif name == "git" then
-    with_panels("git_changes")
-  elseif name == "debug" then
-    picker("diagnostics", "Trouble diagnostics")
-  elseif name == "ai" then
-    with_panels("ai_chat", true) -- true = focus the chat when it opens
-  end
+  vim.notify("snacks.nvim is not ready yet (try :Lazy)", vim.log.levels.WARN)
 end
 
 ---Run a toolbar button. Public so tests and other modules can reuse it.
 function M.click(name)
-  run(name)
+  local panel = PANEL[name]
+  if TREE_KEY[name] then
+    tree_key(TREE_KEY[name])
+  elseif panel and panel.panels then
+    with_panels(panel.panels, panel.arg)
+  elseif panel then
+    picker(panel.picker, panel.fallback)
+  end
 end
 
--- Neovim reads a click item's target as a plain function *name*, not as Lua:
--- `require'ui.neotree_bar'.click('add')` is accepted but never called (quotes
--- and parentheses are not part of a name). A dotted name does work, so publish
--- one small global table with a function per button.
+-- A click item names a plain function (no quotes/parens): one global per button.
 _G.NeoTreeBar = {}
 for _, group in ipairs({ TREE_BUTTONS, PANEL_BUTTONS }) do
   for _, name in ipairs(group) do
     _G.NeoTreeBar[name] = function()
-      -- Defer: the click is handled mid mouse-event, where changing windows
-      -- or feeding keys is unsafe.
+      -- Deferred: the click is handled mid mouse-event.
       vim.schedule(function()
         M.click(name)
       end)
@@ -142,26 +111,38 @@ for _, group in ipairs({ TREE_BUTTONS, PANEL_BUTTONS }) do
   end
 end
 
----One clickable icon: `%N@func@label@` is the statusline click syntax, where
----`label` is what the user sees and `func` is the function name run on click.
----
----Each label is " icon" (leading space only). A Nerd Font glyph is two cells
----wide, so this gives 3 cells per button: nine buttons plus the divider fit in
----neo-tree's 32-column window without the bar being truncated.
-local function button(name, icon)
-  return string.format("%%1@v:lua.NeoTreeBar.%s@ %s@", name, icon)
+local SPANS = {} -- cells each button occupies, so a click maps to a name
+
+---One clickable icon (`%N@func@label@`): `label` is what the user sees, `func`
+---runs on click. A label is " icon"; a Nerd Font glyph is two cells wide, so a
+---button takes 3 cells and the bar fits neo-tree's 32-column window.
+local function button(name, icon, col)
+  local text = " " .. icon
+  local width = vim.fn.strdisplaywidth(text)
+  SPANS[#SPANS + 1] = { name = name, from = col, to = col + width - 1 }
+  return string.format("%%1@v:lua.NeoTreeBar.%s@%s@", name, text), col + width
 end
 
----Build the toolbar once, with standard highlight groups so it follows the
----colourscheme: Title for the icons, Comment for the divider.
+---The button covering 0-based cell `col`.
+local function hit(col)
+  for _, span in ipairs(SPANS) do
+    if col >= span.from and col <= span.to then
+      return span.name
+    end
+  end
+end
+
+---Build the bar once; highlight groups keep it in step with the theme.
 local function build_bar()
   local parts = { "%#WinBar#", "%#Title#" }
+  local col = 0
   for _, name in ipairs(TREE_BUTTONS) do
-    parts[#parts + 1] = button(name, ICON[name])
+    parts[#parts + 1], col = button(name, ICON[name], col)
   end
   parts[#parts + 1] = "%#Comment# \u{2502} %#Title#"
+  col = col + vim.fn.strdisplaywidth(" \u{2502} ")
   for _, name in ipairs(PANEL_BUTTONS) do
-    parts[#parts + 1] = button(name, ICON[name])
+    parts[#parts + 1], col = button(name, ICON[name], col)
   end
   parts[#parts + 1] = "%#WinBar#"
   return table.concat(parts)
@@ -169,40 +150,68 @@ end
 
 local BAR = build_bar()
 
+---Make left clicks in the bar run our buttons. neo-tree maps <LeftMouse> (click
+---opens), and a buffer mapping shadows a winbar's click items because Neovim
+---resolves the key before the mouse position. This mapping sits in front and
+---forwards other clicks to neo-tree's own.
+local function install_mouse(buf)
+  if vim.b[buf].neotree_bar_mouse then
+    return
+  end
+  -- Saved before it is replaced, so clicks in the tree still open nodes.
+  local prev = vim.api.nvim_buf_call(buf, function()
+    return vim.fn.maparg("<LeftMouse>", "n", false, true)
+  end)
+  local forward = type(prev) == "table" and prev.callback or nil
+  if not forward then
+    return -- neo-tree's mapping is not there yet: retry on the next enter
+  end
+  vim.b[buf].neotree_bar_mouse = true
+
+  vim.keymap.set("n", "<LeftMouse>", function()
+    local pos = vim.fn.getmousepos()
+    if pos.line == 0 and pos.winrow == 1 then -- the bar, above the text
+      local name = hit(pos.wincol - 1)
+      if name then
+        M.click(name)
+      end
+      return -- clicks on the bar or its gaps never open a file
+    end
+    if forward then
+      forward()
+    end
+  end, { buffer = buf, nowait = true, desc = "Toolbar or open" })
+end
+
 ---Draw the toolbar on every neo-tree window. Call once at startup.
 function M.setup()
   local group = vim.api.nvim_create_augroup("UserNeotreeBar", { clear = true })
 
-  ---Put the winbar on the window showing `buf`, when it is a real split.
-  local function attach(buf)
-    local win = vim.api.nvim_get_current_win()
-    if vim.api.nvim_win_get_buf(win) ~= buf then
-      win = vim.fn.win_findbuf(buf)[1]
-      if not win then
-        return -- not displayed yet: BufWinEnter will call us again
-      end
+  ---Set the bar on the split that shows `buf`.
+  local function show(buf)
+    local win = tree_win()
+    if win and vim.api.nvim_win_get_buf(win) == buf then
+      vim.wo[win].winbar = BAR
     end
-    if vim.api.nvim_win_get_config(win).relative ~= "" then
-      return -- a float: no room for a bar
-    end
-    vim.wo[win].winbar = BAR
   end
 
-  -- FileType fires once per neo-tree buffer; BufWinEnter fires again when the
-  -- window is recreated (a toggle reuses the buffer), which keeps the bar.
+  -- FileType fires once per buffer; BufWinEnter again when a toggle recreates
+  -- the window around the reused buffer, which is what keeps the bar alive.
   vim.api.nvim_create_autocmd("FileType", {
     group = group,
     pattern = "neo-tree",
     callback = function(ev)
-      attach(ev.buf)
+      show(ev.buf)
     end,
   })
 
+  -- Mappings only exist after neo-tree sets the buffer up, hence BufWinEnter.
   vim.api.nvim_create_autocmd("BufWinEnter", {
     group = group,
     callback = function(ev)
       if vim.bo[ev.buf].filetype == "neo-tree" then
-        attach(ev.buf)
+        show(ev.buf)
+        install_mouse(ev.buf)
       end
     end,
   })

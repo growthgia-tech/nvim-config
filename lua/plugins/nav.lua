@@ -38,7 +38,7 @@ return {
 
       window = {
         position = "left",
-        width = 32,
+        width = 38,
         mappings = {
           -- One-key habits, plus mouse clicks, so it feels like VS Code's tree.
           ["q"] = "close_window", -- quit the sidebar without quitting Neovim

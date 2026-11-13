@@ -84,7 +84,8 @@ end
 local function terminal(info)
   local ok, snacks = pcall(require, "snacks")
   if ok and snacks.terminal then
-    snacks.terminal.open(nil, { cwd = info.dir, win = { position = "botright", height = 0.3 } })
+    -- Snacks calls the bottom split "bottom"; it rejects Vim's "botright".
+    snacks.terminal.open(nil, { cwd = info.dir, win = { position = "bottom", height = 0.3 } })
     return
   end
   -- Without snacks, a plain :terminal with the window-local directory.
@@ -105,7 +106,6 @@ local function find_in_folder(info)
     end
   end)
 end
-
 local function copy(text, what)
   if text then
     pcall(vim.fn.setreg, "+", text)

@@ -69,10 +69,16 @@ They live in `lua/ui/` and are wired from `ui.lua`'s `config` callback.
 
 | File | Owns |
 |---|---|
-| `dashboard.lua` | start screen: click-to-run, hover tooltips, Open folder / New file |
+| `dashboard.lua` | start screen: click-to-run, help icons, Open folder / New file |
 | `folder.lua` | the browsable folder picker behind Open folder |
-| `mouse.lua` | one click opens the row in pickers, trouble and quickfix |
-| `panels.lua` | the left explorer, the git changes view, the right AI panel |
+| `quickopen.lua` | typing `>` in Quick Open switches to the command palette |
+| `mouse.lua` | one click opens the row in pickers, trouble, quickfix and neo-tree |
+| `panels.lua` | the left explorer, the git changes view, the right AI panel, debugger |
+| `neotree_bar.lua` | the clickable explorer toolbar (new file/folder, refresh, panels) |
+| `explorer_menu.lua` | right-click menu for files and folders in the explorer |
+| `explorer_panel.lua` | Open Editors view and the explorer "..." menu |
+| `source.lua` | git changes, commit (never push), history graph, branches |
+| `mode.lua` | the NORMAL/INSERT pill and beginner-mode auto-insert |
 | `image.lua` | image previews (PNG/JPG/WebP/GIF/SVG) |
 
 ## Plugins

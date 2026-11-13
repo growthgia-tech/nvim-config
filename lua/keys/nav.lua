@@ -286,6 +286,60 @@ local function context_menu()
       end,
     },
     {
+      name = "Insert mode (start typing)",
+      run = function()
+        vim.cmd.startinsert()
+      end,
+    },
+    {
+      name = "Normal mode (navigate)",
+      run = function()
+        vim.cmd.stopinsert()
+      end,
+    },
+    {
+      name = "Save",
+      run = function()
+        require("config.util").save()
+      end,
+    },
+    {
+      name = "Undo",
+      run = function()
+        vim.cmd.undo()
+      end,
+    },
+    {
+      name = "Redo",
+      run = function()
+        vim.cmd.redo()
+      end,
+    },
+    {
+      name = "Select all",
+      run = function()
+        vim.cmd("normal! ggVG")
+      end,
+    },
+    {
+      name = "Command palette",
+      run = function()
+        vim.cmd("Palette")
+      end,
+    },
+    {
+      name = "Toggle explorer",
+      run = function()
+        require("ui.panels").explorer()
+      end,
+    },
+    {
+      name = "AI panel",
+      run = function()
+        require("ui.panels").ai_chat(true)
+      end,
+    },
+    {
       name = "Close Tab",
       run = function()
         require("config.util").close_buffer()
@@ -831,6 +885,14 @@ function M.setup(R)
     nargs = "?",
     complete = "dir",
   })
+
+  R.cmd("OpenEditors", function()
+    require("ui.explorer_panel").open_editors()
+  end, { desc = "Show or hide the open-editors list", cat = "Windows" })
+
+  R.cmd("ExplorerMenu", function()
+    require("ui.explorer_panel").menu()
+  end, { desc = "Explorer panel menu (open editors, close all/saved, ...)", cat = "Windows" })
 
   R.cmd("NewFile", function(args)
     require("ui.dashboard").new_file(args.args)

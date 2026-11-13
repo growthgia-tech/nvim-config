@@ -140,6 +140,12 @@ leader keys. `KEYBINDINGS.md` shows exactly what each platform binds.
   Reveal in Finder, Open in Terminal, Copy Path, Rename, Delete.
 - A clickable icon strip in the status bar (home, explorer, search, git,
   debug, AI), so every panel has a visible button as well as a key.
+- Beginner mode opens files in **INSERT** so typing works immediately. The
+  `NORMAL`/`INSERT` pill at the far left of the status bar is a button: click
+  it to switch. `Esc` still goes to Normal, `i` comes back.
+- **Open Editors**: the pages icon in the explorer toolbar (or `:OpenEditors`)
+  switches the sidebar between the file tree and the list of open buffers.
+  The `...` button next to it has Close All, Close Saved, Configure Explorer.
 - Image previews: opening `.png`, `.jpg`, `.webp`, `.gif` or `.svg` shows the
   picture in a floating window (chafa on Neovide; real pixels in
   kitty/wezterm/ghostty). `:Preview` reopens it; `q` closes it.
