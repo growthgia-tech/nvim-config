@@ -152,10 +152,7 @@ end
 -- Explorer / terminal / problems
 -- ---------------------------------------------------------------------------
 local function toggle_sidebar()
-  local ok = pcall(vim.cmd, "Neotree toggle")
-  if not ok then
-    vim.notify("neo-tree is not installed yet (run :Lazy)", vim.log.levels.WARN)
-  end
+  require("ui.panels").explorer()
 end
 
 local function toggle_terminal()
@@ -345,7 +342,11 @@ local function context_menu()
   vim.keymap.set("n", "<CR>", run_current, { buffer = buf, desc = "Run action" })
   vim.keymap.set("n", "q", close, { buffer = buf, desc = "Close menu" })
   vim.keymap.set("n", "<Esc>", close, { buffer = buf, desc = "Close menu" })
-  vim.keymap.set("n", "<LeftMouse>", select_line, { buffer = buf, desc = "Select action" })
+  -- One click runs the action, like a native menu (double click still works).
+  vim.keymap.set("n", "<LeftMouse>", function()
+    select_line()
+    run_current()
+  end, { buffer = buf, desc = "Run clicked action" })
   vim.keymap.set("n", "<2-LeftMouse>", function()
     select_line()
     run_current()
@@ -571,6 +572,22 @@ function M.setup(R)
   })
 
   R.map({
+    lhs = "<leader>e",
+    rhs = toggle_sidebar,
+    desc = "Toggle the file explorer",
+    cat = "Windows",
+  })
+
+  R.map({
+    lhs = "<leader>gc",
+    rhs = function()
+      require("ui.panels").git_changes()
+    end,
+    desc = "Toggle the git changes panel",
+    cat = "Git",
+  })
+
+  R.map({
     lhs = "<C-`>",
     rhs = toggle_terminal,
     desc = "Toggle terminal (press again to hide)",
@@ -702,6 +719,52 @@ function M.setup(R)
   R.cmd("Proj", function()
     pick("projects")
   end, { desc = "Switch project", cat = "Files" })
+
+  R.cmd("Explorer", toggle_sidebar, {
+    desc = "Show or hide the file explorer",
+    cat = "Windows",
+  })
+
+  R.cmd("GitChanges", function()
+    require("ui.panels").git_changes()
+  end, { desc = "Show or hide the git changes panel", cat = "Git" })
+
+  R.cmd("OpenFolder", function(args)
+    require("ui.dashboard").open_folder(args.args)
+  end, {
+    desc = "Open a folder as the project",
+    cat = "Files",
+    nargs = "?",
+    complete = "dir",
+  })
+
+  R.cmd("NewFile", function(args)
+    require("ui.dashboard").new_file(args.args)
+  end, {
+    desc = "Create a new file by name",
+    cat = "Files",
+    nargs = "?",
+    complete = "file",
+  })
+
+  R.cmd("Preview", function(args)
+    local path = args.args ~= "" and args.args or vim.api.nvim_buf_get_name(0)
+    if path == "" then
+      vim.notify("Open an image, or run :Preview <file>", vim.log.levels.WARN)
+      return
+    end
+    local ok, image = pcall(require, "ui.image")
+    if not ok then
+      vim.notify("The image preview module is missing", vim.log.levels.WARN)
+      return
+    end
+    image.preview(path)
+  end, {
+    desc = "Preview an image (png, jpg, webp, gif, svg)",
+    cat = "Files",
+    nargs = "?",
+    complete = "file",
+  })
 
   R.cmd("SessionRestore", function()
     local ok, persistence = pcall(require, "persistence")

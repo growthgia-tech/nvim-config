@@ -81,6 +81,12 @@ opt.confirm = true -- "Save changes?" instead of refusing to quit
 opt.title = true
 
 opt.completeopt = { "menu", "menuone", "noselect" }
+
+-- Command-line completion, VS Code style: a popup list that narrows as you
+-- type, with fuzzy matching. `wildoptions=pum` is what makes `:e src/<Tab>`
+-- show candidates instead of cycling blindly through them.
+opt.wildmode = "longest:full,full"
+opt.wildoptions = "pum,fuzzy"
 opt.diffopt:append("linematch:60") -- readable side-by-side diffs
 
 -- Sessions: what gets restored by persistence.nvim

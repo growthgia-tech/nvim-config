@@ -313,6 +313,29 @@ check("debug adapters are registered", function()
 end)
 
 -- ---------------------------------------------------------------------------
+-- 10. VS Code-like surfaces: mouse, start screen, panels
+-- ---------------------------------------------------------------------------
+check("one click opens a row in lists", function()
+  assert_true(
+    vim.fn.exists("#UserMouse#FileType") == 1,
+    "lua/ui/mouse.lua did not install its FileType autocmd"
+  )
+end)
+
+check("the start screen is clickable", function()
+  require("snacks").dashboard()
+  local dashboard = require("ui.dashboard")
+  assert_true(dashboard.instance() ~= nil, "the dashboard click layer did not attach")
+  assert_true(vim.fn.maparg("<LeftMouse>", "n") ~= "", "no click mapping on the start screen")
+end)
+
+check("folder and panel commands exist", function()
+  for _, name in ipairs({ "OpenFolder", "NewFile", "Explorer", "GitChanges", "AIPanel" }) do
+    assert_true(vim.fn.exists(":" .. name) == 2, ":" .. name .. " is not defined")
+  end
+end)
+
+-- ---------------------------------------------------------------------------
 -- Summary
 -- ---------------------------------------------------------------------------
 print(("\n%d passed, %d failed"):format(passes, failures))

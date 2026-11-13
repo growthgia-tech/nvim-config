@@ -155,6 +155,25 @@ function M.setup(R)
     cat = "UI",
   })
 
+  R.map({
+    lhs = "<leader>up",
+    rhs = function()
+      local path = vim.api.nvim_buf_get_name(0)
+      if path == "" then
+        require("config.util").notify("Open an image first, or run :Preview <file>")
+        return
+      end
+      local ok, image = pcall(require, "ui.image")
+      if ok then
+        image.preview(path)
+      else
+        require("config.util").notify("The image preview module is missing", vim.log.levels.WARN)
+      end
+    end,
+    desc = "Preview the image in this buffer",
+    cat = "UI",
+  })
+
   -- -------------------------------------------------------------------------
   -- Buffers (the tabs). <D-1>..<D-9> and <C-Tab> are reserved for the
   -- navigation agent; these leader versions always work, even in a terminal.

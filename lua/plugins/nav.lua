@@ -43,7 +43,8 @@ return {
           -- One-key habits, plus mouse clicks, so it feels like VS Code's tree.
           ["q"] = "close_window", -- quit the sidebar without quitting Neovim
           ["<CR>"] = "open", -- Enter opens the file or folder
-          ["<2-LeftMouse>"] = "open", -- double click opens, like a file manager
+          ["<LeftMouse>"] = "open", -- one click opens, like VS Code's explorer
+          ["<2-LeftMouse>"] = "open", -- double click also opens, like a file manager
         },
       },
     },

@@ -26,6 +26,15 @@ R.cmd("ConfigUpdate", function()
   vim.notify("Plugins and tools updated", vim.log.levels.INFO)
 end, { desc = "Update plugins and Mason tools", cat = "Config" })
 
+R.cmd("Home", function()
+  local ok, snacks = pcall(require, "snacks")
+  if not ok then
+    vim.notify("snacks.nvim is not loaded yet (try :Lazy sync)", vim.log.levels.WARN)
+    return
+  end
+  snacks.dashboard()
+end, { desc = "Open the start screen", cat = "Config" })
+
 -- ---------------------------------------------------------------------------
 -- Beginner mode vs Vim mode.
 -- Beginner mode: arrow keys work, so you can edit before you learn hjkl.

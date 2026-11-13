@@ -50,16 +50,12 @@ local function bootstrap()
     end
 
     vim.fn.delete(lazypath, "rf")
-    vim.api.nvim_echo(
+    vim.api.nvim_echo({
       {
-        {
-          ("lazy.nvim download failed (attempt %d of 3), retrying…\n"):format(attempt),
-          "WarningMsg",
-        },
+        ("lazy.nvim download failed (attempt %d of 3), retrying…\n"):format(attempt),
+        "WarningMsg",
       },
-      true,
-      {}
-    )
+    }, true, {})
   end
 
   return false

@@ -120,11 +120,24 @@ leader keys. `KEYBINDINGS.md` shows exactly what each platform binds.
 
 - Mouse everywhere: click to move, drag to select, drag window borders,
   scroll wheel, right-click for a context menu with the ten actions you
-  actually use.
-- A start screen with clickable shortcuts.
+  actually use. One click also opens the row you point at in the start screen,
+  the file tree, every picker, the problems list and the quickfix list.
+- A start screen where every row is a real button: click it or press Enter,
+  and hover it for a one-line explanation. It includes **Open folder** and
+  **New file**, so there is a way in without remembering a command.
+- **Open folder** (`o` on the start screen, or `:OpenFolder`): a browsable
+  folder picker — click into folders, `../` to go up, `a` to create one — with
+  a typed path + Tab completion as the fast alternative.
+- The two side panels you expect: the file tree on the left (`Cmd+B`,
+  `:Explorer`) with VS Code file operations (`a` new file, `A` new folder,
+  `r` rename, `d` delete) and the git working-tree changes (`Space g c`,
+  `:GitChanges`); the AI chat on the right (`Cmd+I`, `Ctrl+.`, `:AIPanel`).
 - Breadcrumbs above the code (dropbar).
-- Tabs with per-file diagnostics, close buttons and `Cmd+1..9`.
+- Tabs with per-file diagnostics, close buttons and `Cmd+1..9`. Closing the
+  last tab returns to the start screen instead of an empty `[No Name]` buffer.
 - Format on save, lint as you type, completion as you type.
+- Command-line completion with a popup (`wildoptions=pum`, fuzzy matching), so
+  `:e src/<Tab>` shows what exists instead of guessing.
 - Notifications in the corner instead of `:messages` archaeology.
 - Sessions: reopen Neovim and your tabs are still there.
 - `:Panic` — a centred card with the six escape routes, for when the screen

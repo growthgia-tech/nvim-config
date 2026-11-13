@@ -10,6 +10,21 @@ The complete list of keys is in [`KEYBINDINGS.md`](../KEYBINDINGS.md), and
 
 ---
 
+## 0. The start screen is a set of buttons
+
+When Neovim opens with no file, it shows a start screen. Every row is clickable:
+click it or press Enter, and hover it for a one-line explanation.
+
+- **Open folder** — choose a project in a browsable folder dialog (or type a
+  path; Tab completes it).
+- **New file** — name a file, then start editing.
+- **Explorer sidebar / Git changes / AI panel** — the same panels as VS Code,
+  without remembering `Cmd+B`.
+
+You can always get back to it with `:lua Snacks.dashboard()`.
+
+---
+
 ## 1. The three things that are actually different
 
 Everything else is a detail.
@@ -22,10 +37,11 @@ normal. Press `Esc` to go back to Normal.
 That is the whole idea. When something "doesn't type", you are in Normal mode.
 Press `i`.
 
-**The editor is the window.** There is no sidebar tree, no tab bar you have to
-click. Buffers (open files) exist whether or not you can see them. You switch
-by name with `Cmd+P`, which is faster than clicking and is what you already do
-in VS Code anyway.
+**The editor is the window.** The chrome is quiet: there is no permanent tree
+or toolbar to click through. Buffers (open files) exist whether or not you can
+see them. You switch by name with `Cmd+P`, which is faster than clicking and is
+what you already do in VS Code anyway. When you want the tree, `Cmd+B` (or
+`:Explorer`) brings it back.
 
 **Nothing is a menu until you ask.** The screen is quiet because the chrome is
 hidden. Press `Space` and wait and the menu appears — that is which-key, and it
@@ -102,9 +118,10 @@ Inside any picker: type to filter, `Ctrl+n`/`Ctrl+p` or the arrow keys to move,
 every keymap, so it doubles as "how do I do X, and what is the key for it".
 This is the single most useful key in the whole config.
 
-The file tree (`Cmd+B`) is a normal tree: single click selects, double click
-opens, right-click gives you a context menu. It follows the file you are
-editing, which is what VS Code's explorer does.
+The file tree (`Cmd+B`, or the "Explorer sidebar" row on the start screen) is
+a normal tree: one click opens the file, folders expand, and `a` / `A` create a
+file / folder, `r` renames, `d` deletes. It follows the file you are editing,
+which is what VS Code's explorer does.
 
 ---
 

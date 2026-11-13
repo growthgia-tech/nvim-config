@@ -55,8 +55,8 @@ is enabled everywhere; right-click opens a context menu.
 | Key | Terminal | What it does |
 |---|---|---|
 | `Cmd+A` | `Ctrl+Shift+A` | Select all |
-| `Cmd+C` | `Ctrl+C` | Copy current line |
 | `Cmd+C` | `Ctrl+C` | Copy selection |
+| `Cmd+C` | `Ctrl+C` | Copy current line |
 | `Cmd+V` | `Ctrl+V` | Paste from system clipboard |
 | `Cmd+X` | `Ctrl+Shift+X` | Cut current line |
 | `Cmd+X` | `Ctrl+Shift+X` | Cut selection |
@@ -118,6 +118,7 @@ is enabled everywhere; right-click opens a context menu.
 |---|---|---|
 | `Cmd+\` | `Alt+\` | Split the editor vertically |
 | `Cmd+B` | `Ctrl+Shift+B` | Toggle the file explorer |
+| `Space e` |  | Toggle the file explorer |
 | `Space wh` |  | Horizontal split  (resize: <C-w>+ / <C-w>-) |
 | `Space wq` |  | Close this window  (not the file) |
 | `Space wv` |  | Vertical split  (resize: <C-w>> / <C-w><) |
@@ -160,6 +161,7 @@ is enabled everywhere; right-click opens a context menu.
 | Key | Terminal | What it does |
 |---|---|---|
 | `Space fg` |  | Changed files (git status) |
+| `Space gc` |  | Toggle the git changes panel |
 | `Space gg` |  | Open lazygit (git app) |
 | `Space gs` |  | Git status: changed files |
 
@@ -200,6 +202,7 @@ is enabled everywhere; right-click opens a context menu.
 |---|---|---|
 | `Space ;` |  | Pick a symbol from the breadcrumbs |
 | `Space ul` |  | Toggle relative line numbers |
+| `Space up` |  | Preview the image in this buffer |
 | `Space ut` |  | Pick a theme |
 | `Space uw` |  | Toggle line wrapping |
 | `[;` |  | Go to the start of this code block |
@@ -215,6 +218,15 @@ is enabled everywhere; right-click opens a context menu.
 | `Space hk` |  | Search all keymaps |
 | `Space hp` |  | What to press when stuck |
 | `Space ht` |  | Beginner tutorial |
+
+## Toggle
+
+| Key | Terminal | What it does |
+|---|---|---|
+| `Space uc` |  | Toggle concealed markup |
+| `Space ui` |  | Toggle indent guides |
+| `Space us` |  | Toggle spell check |
+| `Space uz` |  | Toggle soft wrap |
 
 ## Buffers
 
@@ -246,15 +258,6 @@ is enabled everywhere; right-click opens a context menu.
 | `Space bo` |  | Close all other buffers (keeps unsaved ones) |
 | `Space bp` |  | Previous buffer |
 
-## Toggle
-
-| Key | Terminal | What it does |
-|---|---|---|
-| `Space uc` |  | Toggle concealed markup |
-| `Space ui` |  | Toggle indent guides |
-| `Space us` |  | Toggle spell check |
-| `Space uz` |  | Toggle soft wrap |
-
 ## Commands
 
 Type `:` then the name. Tab completes. They are grouped by purpose.
@@ -263,6 +266,9 @@ Type `:` then the name. Tab completes. They are grouped by purpose.
 
 | Command | What it does |
 |---|---|
+| `:NewFile` | Create a new file by name |
+| `:OpenFolder` | Open a folder as the project |
+| `:Preview` | Preview an image (png, jpg, webp, gif, svg) |
 | `:Proj` | Switch project |
 
 ### Editing
@@ -287,6 +293,7 @@ Type `:` then the name. Tab completes. They are grouped by purpose.
 | `:AIDiff` | AI: review the uncommitted diff |
 | `:AIExplain` | Explain the code under the cursor |
 | `:AIFix` | Fix the diagnostics in this buffer |
+| `:AIPanel` | Show or hide the AI chat panel |
 | `:AIReview` | Review the code under the cursor |
 | `:AITests` | Write tests for the code under the cursor |
 | `:Ask` | Ask the AI (optionally with a question) |
@@ -297,11 +304,23 @@ Type `:` then the name. Tab completes. They are grouped by purpose.
 |---|---|
 | `:LspInfo` | Show language server status |
 
+### Windows
+
+| Command | What it does |
+|---|---|
+| `:Explorer` | Show or hide the file explorer |
+
 ### Diagnostics
 
 | Command | What it does |
 |---|---|
 | `:Problems` | Open the problems panel |
+
+### Git
+
+| Command | What it does |
+|---|---|
+| `:GitChanges` | Show or hide the git changes panel |
 
 ### Session
 
@@ -347,6 +366,7 @@ Type `:` then the name. Tab completes. They are grouped by purpose.
 | `:ConfigEdit` | Open this config for editing |
 | `:ConfigUpdate` | Update plugins and Mason tools |
 | `:Health` | Run :checkhealth |
+| `:Home` | Open the start screen |
 | `:Reload` | Reload the Neovim config |
 | `:VimMode` | Vim mode (arrows off) |
 

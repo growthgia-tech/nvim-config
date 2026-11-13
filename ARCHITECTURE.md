@@ -61,6 +61,20 @@ entirely. A few Vim-essential chords (`Ctrl+W`, `Ctrl+B`, `Ctrl+V`, insert-mode
 
 Nothing else in the config asks which OS it is on.
 
+## The UI layer (`lua/ui/`)
+
+Some behaviours are neither a plugin spec nor a keymap: they only make sense
+once a plugin is loaded, and both the keys and the start screen call them.
+They live in `lua/ui/` and are wired from `ui.lua`'s `config` callback.
+
+| File | Owns |
+|---|---|
+| `dashboard.lua` | start screen: click-to-run, hover tooltips, Open folder / New file |
+| `folder.lua` | the browsable folder picker behind Open folder |
+| `mouse.lua` | one click opens the row in pickers, trouble and quickfix |
+| `panels.lua` | the left explorer, the git changes view, the right AI panel |
+| `image.lua` | image previews (PNG/JPG/WebP/GIF/SVG) |
+
 ## Plugins
 
 `lua/plugins/` is one file per concern, imported automatically by lazy.nvim:

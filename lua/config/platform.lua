@@ -93,7 +93,10 @@ local function wanted_dirs()
   local home = vim.uv.os_homedir()
 
   if M.is_windows then
-    table.insert(dirs, vim.fs.joinpath(vim.env.LOCALAPPDATA or home, "Microsoft", "WinGet", "Links"))
+    table.insert(
+      dirs,
+      vim.fs.joinpath(vim.env.LOCALAPPDATA or home, "Microsoft", "WinGet", "Links")
+    )
     table.insert(dirs, vim.fs.joinpath(vim.env.LOCALAPPDATA or home, "pnpm"))
     table.insert(dirs, vim.fs.joinpath(home, ".local", "bin"))
   else

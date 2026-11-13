@@ -13,15 +13,33 @@
 -- Keymaps for all of these live in lua/keys/ui.lua (one registry only).
 -- This file owns the *plugin specs*: no other file may configure snacks.
 
--- Ask the AI about the current buffer. Guarded: opencode.nvim is optional,
--- and a missing plugin must never take the whole startup down with it.
-local function ask_ai()
-  local ok, opencode = pcall(require, "opencode")
-  if ok and type(opencode.ask) == "function" then
-    opencode.ask("@this: ")
+-- Close a tab, then show the start screen when the last file is gone. Without
+-- this, closing the only tab deletes the buffer and Neovim immediately creates
+-- an identical empty [No Name] one, so the X looks like it did nothing.
+local function close_tab(bufnr)
+  local ok, Snacks = pcall(require, "snacks")
+  if ok and Snacks.bufdelete then
+    Snacks.bufdelete({ buf = bufnr })
   else
-    vim.notify("opencode.nvim is not installed", vim.log.levels.WARN)
+    pcall(vim.cmd, "bdelete " .. bufnr)
   end
+
+  vim.schedule(function()
+    local listed, named = 0, 0
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+      if vim.bo[buf].buflisted then
+        listed = listed + 1
+        if vim.api.nvim_buf_get_name(buf) ~= "" then
+          named = named + 1
+        end
+      end
+    end
+    if listed <= 1 and named == 0 then
+      pcall(function()
+        require("snacks").dashboard({ buf = 0, win = 0 })
+      end)
+    end
+  end)
 end
 
 -- The status bar shows the mode in WORDS ("INSERT"), not the single letter
@@ -117,38 +135,149 @@ return {
         },
       },
 
-      -- Use snacks' explorer as the file tree and stop netrw from opening.
+      -- The file tree is neo-tree (lua/plugins/nav.lua): it has VS Code's file
+      -- operations (a = new file, A = new folder, r = rename, d = delete) and a
+      -- git_status view. Leaving snacks' explorer on as well gives you two
+      -- trees fighting over netrw, so it stays off.
       explorer = {
-        enabled = true,
-        replace_netrw = true,
+        enabled = false,
       },
 
       -- The start screen: big logo, clickable shortcut buttons, recents.
+      --
+      -- `tooltip` is not a snacks field: lua/ui/dashboard.lua reads it to draw
+      -- the hover window, so every option explains itself without a manual.
+      -- Icons are Font Awesome code points: \u{f115} folder-open, \u{f15b}
+      -- file, ... and they exist in every Nerd Font.
       dashboard = {
         enabled = true,
         preset = {
           keys = {
-            { icon = " ", key = "n", desc = "New file", action = ":ene | startinsert" },
             {
-              icon = " ",
-              key = "r",
-              desc = "Recent files",
-              action = ":lua Snacks.picker.recent()",
+              icon = "\u{f115}",
+              key = "o",
+              desc = "Open folder",
+              action = function()
+                require("ui.dashboard").open_folder()
+              end,
+              tooltip = "Browse to a project folder (or type a path with Tab completion) and open it, like File > Open Folder in VS Code.",
             },
-            { icon = " ", key = "f", desc = "Find file", action = ":lua Snacks.picker.files()" },
-            { icon = " ", key = "g", desc = "Find text", action = ":lua Snacks.picker.grep()" },
-            { icon = " ", key = "p", desc = "Projects", action = ":lua Snacks.picker.projects()" },
-            { icon = " ", key = "a", desc = "Ask AI", action = ask_ai },
-            { icon = " ", key = "c", desc = "Config", action = ":ConfigEdit" },
-            { icon = " ", key = "h", desc = "Help", action = ":HelpMe" },
-            { icon = " ", key = "q", desc = "Quit", action = ":qa" },
+            {
+              icon = "\u{f15b}",
+              key = "n",
+              desc = "New file",
+              action = function()
+                require("ui.dashboard").new_file()
+              end,
+              tooltip = "Type a file name (Tab completes the path) and start editing it, like File > New File in VS Code.",
+            },
+            {
+              icon = "\u{f002}",
+              key = "f",
+              desc = "Find file",
+              action = ":lua Snacks.picker.files()",
+              tooltip = "Search file names in the current project (Cmd+P).",
+            },
+            {
+              icon = "\u{f002}",
+              key = "g",
+              desc = "Find text",
+              action = ":lua Snacks.picker.grep()",
+              tooltip = "Search inside every file in the project with ripgrep (Cmd+Shift+F).",
+            },
+            {
+              icon = "\u{f07b}",
+              key = "p",
+              desc = "Projects",
+              action = ":lua Snacks.picker.projects()",
+              tooltip = "Switch to another repository in ~/Dev. The working folder changes with it.",
+            },
+            {
+              icon = "\u{f0db}",
+              key = "e",
+              desc = "Explorer sidebar",
+              action = function()
+                require("ui.panels").explorer()
+              end,
+              tooltip = "Show or hide the file tree on the left (Cmd+B). Inside it: a = new file, A = new folder, r = rename, d = delete.",
+            },
+            {
+              icon = "\u{f1d3}",
+              key = "t",
+              desc = "Git changes",
+              action = function()
+                require("ui.panels").git_changes()
+              end,
+              tooltip = "The working-tree changes panel (VS Code's Source Control): modified, added and deleted files.",
+            },
+            {
+              icon = "\u{f086}",
+              key = "i",
+              desc = "AI panel",
+              action = function()
+                require("ui.panels").ai_chat(true)
+              end,
+              tooltip = "Show or hide the AI chat on the right (Cmd+I, or Ctrl+. inside a file).",
+            },
+            {
+              icon = "\u{f013}",
+              key = "c",
+              desc = "Config",
+              action = ":ConfigEdit",
+              tooltip = "Edit this Neovim config. It is all Lua and commented.",
+            },
+            {
+              icon = "\u{f059}",
+              key = "h",
+              desc = "Help",
+              action = ":HelpMe",
+              tooltip = "Every key and command, generated from what is actually mapped.",
+            },
+            {
+              icon = "\u{f011}",
+              key = "q",
+              desc = "Quit",
+              action = ":qa",
+              tooltip = "Close the editor. Unsaved files are never thrown away silently.",
+            },
           },
         },
         sections = {
           { section = "header" },
-          { section = "keys", gap = 1, padding = 1 },
-          { icon = " ", title = "Recent Files", section = "recent_files", indent = 2, padding = 1 },
-          { icon = " ", title = "Projects", section = "projects", indent = 2, padding = 1 },
+          { section = "keys", gap = 0, padding = 1 },
+          {
+            icon = "\u{f1d3}",
+            title = "Git Changes",
+            section = "git_changes",
+            indent = 2,
+            padding = 1,
+          },
+          {
+            icon = "\u{f07b}",
+            title = "Recent Files",
+            section = "recent_files",
+            limit = 3,
+            indent = 2,
+            padding = 1,
+          },
+          {
+            icon = "\u{f07b}",
+            title = "Projects",
+            section = "projects",
+            limit = 3,
+            indent = 2,
+            padding = 1,
+          },
+          {
+            align = "center",
+            padding = 1,
+            text = {
+              {
+                "Click an item or press Enter  ·  hover for details  ·  Cmd+Shift+P for everything",
+                hl = "footer",
+              },
+            },
+          },
           { section = "startup" },
         },
       },
@@ -194,6 +323,21 @@ return {
         enabled = true,
       },
     },
+    config = function(_, opts)
+      require("snacks").setup(opts)
+
+      -- Single-click activation for every list (pickers, trouble, quickfix).
+      require("ui.mouse").setup()
+
+      -- Mouse clicks, hover tooltips and "Open folder" on the start screen.
+      require("ui.dashboard").setup()
+
+      -- Image files (png/jpg/webp/gif/svg) get a real preview instead of a
+      -- buffer full of binary. Optional: the module may not exist yet.
+      pcall(function()
+        require("ui.image").setup()
+      end)
+    end,
   },
 
   -- -------------------------------------------------------------------------
@@ -211,8 +355,8 @@ return {
         show_close_icon = true,
         -- Closing with the mouse or the X really deletes the buffer, so the
         -- tab disappears instead of hiding an empty buffer.
-        close_command = "bdelete! %d",
-        right_mouse_command = "bdelete! %d",
+        close_command = close_tab,
+        right_mouse_command = close_tab,
         modified_icon = "● ",
         indicator = {
           style = "icon",

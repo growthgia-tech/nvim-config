@@ -22,16 +22,10 @@ function M.setup(R)
   -- missing CLI gives a readable sentence instead of a Lua stack trace.
   ---------------------------------------------------------------------------
 
-  -- The panel is always a right-hand terminal of this shape.
-  local function panel_opts(enter)
-    return {
-      win = {
-        position = "right",
-        width = 0.38,
-        enter = enter,
-        border = "rounded",
-      },
-    }
+  -- The panel is always a right-hand terminal; lua/ui/panels.lua owns the
+  -- layout so the dashboard's "AI panel" button opens the same thing.
+  local function toggle_chat(enter)
+    require("ui.panels").ai_chat(enter)
   end
 
   local function oc()
@@ -67,18 +61,7 @@ function M.setup(R)
   -- your code so you can keep typing while the answer streams in (false).
   ---------------------------------------------------------------------------
   local function toggle_chat(enter)
-    if vim.fn.executable("opencode") == 0 then
-      U.notify("The 'opencode' CLI is not installed. Run: brew install opencode", WARN)
-      return
-    end
-
-    local ok, Snacks = pcall(require, "snacks")
-    if not ok or not Snacks.terminal then
-      U.notify("The terminal panel needs snacks.nvim (try :Lazy sync)", WARN)
-      return
-    end
-
-    Snacks.terminal.toggle("opencode", panel_opts(enter))
+    require("ui.panels").ai_chat(enter)
   end
 
   ---------------------------------------------------------------------------
@@ -297,6 +280,10 @@ function M.setup(R)
   R.cmd("AIChat", function()
     toggle_chat(true)
   end, { desc = "Open the AI chat panel", cat = "AI" })
+
+  R.cmd("AIPanel", function()
+    toggle_chat(true)
+  end, { desc = "Show or hide the AI chat panel", cat = "AI" })
 
   -- Review the working-tree diff (everything not yet committed).
   R.cmd("AIDiff", function()

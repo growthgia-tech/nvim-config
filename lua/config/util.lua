@@ -64,11 +64,14 @@ function M.save()
   end
 
   if vim.api.nvim_buf_get_name(0) == "" then
-    vim.ui.input({ prompt = "Save as: ", default = vim.uv.cwd() .. "/" }, function(name)
-      if name and name ~= "" then
-        vim.cmd("write " .. vim.fn.fnameescape(name))
+    vim.ui.input(
+      { prompt = "Save as: ", default = vim.uv.cwd() .. "/", completion = "file" },
+      function(name)
+        if name and name ~= "" then
+          vim.cmd("write " .. vim.fn.fnameescape(name))
+        end
       end
-    end)
+    )
     return
   end
 
